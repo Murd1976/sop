@@ -1,0 +1,41 @@
+django
+djangorestframework 
+websocket
+django-bootstrap4
+djangocms-admin-style
+pandas
+python-dotenv
+
+#AI fitches
+openai
+openpyxl
+langchain 
+chromadb  #pip install --upgrade chromadb==0.3.29 
+tiktoken
+
+#for different formats of data
+gspread 
+oauth2client
+lxml
+python-docx
+beautifulsoup4
+
+#for wiki
+django-mptt
+django-nyt
+django-sekizai
+sorl-thumbnail
+exceptions
+git+https://github.com/django-wiki/django-wiki.git
+
+#for demonizing progect
+gunicorn
+psycopg2-binary
+
+#for multitascks
+celery
+celery-progress
+
+#for application
+paramiko
+

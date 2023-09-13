@@ -1,0 +1,131 @@
+{% extends "wiki/base.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+
+{% block wiki_pagetitle %}{% trans "Add new article" %}{% endblock %}
+
+{% block wiki_contents %}
+<h2> GPT response </h2>
+<div class="conteiner-fluid mb-2">
+<form name="Chat GPT" method="POST" >
+	{% csrf_token %}
+	<div class="row mb-2 border">
+    
+		<div class="col ">
+			<div class="row ">
+				<div class="col">
+				
+					<div class="row ml-2">
+						<div class="col">
+							<div class="row">
+								{{ form.f_chat_name.label_tag }}
+							</div>
+							<div class="row">
+								{{ form.f_chat_name }}
+							</div>
+						</div>
+					
+						<div class="col">
+							<div class="row ml-4">
+								{{ form.f_chat_temp.label_tag }}
+							</div>
+							<div class="text_field row ml-4">
+								{{ form.f_chat_temp }}
+							</div>
+						</div>
+						
+						
+						<div class="col">
+							<div class="row"> &nbsp </div>
+							<div class="row ml-4">
+								<a href="{% url 'ai_sop:my_sop_chat' %}" class="btn btn-secondary">
+								<span class="fa fa-comment"></span>
+								{% trans "New chat" %}
+								</a>
+							</div>
+						</div>
+							
+						
+					</div>
+					
+					<div class="row"> &nbsp </div>
+					<div class="row ml-2">
+						{{ form.f_chat_field.label_tag }}
+					</div>
+					<div class="text_field row ml-2">
+						<pre>{{ form.f_chat_field|safe }} </pre>
+					</div>
+						
+				
+					<div class="row">&nbsp</div>
+					<div class="row ml-2">
+												
+						<div class="row ml-0">
+							
+							{{ form.f_subject.label_tag }}
+							
+						</div>
+						<div class=" row ml-4">
+							
+							{{ form.f_subject }}
+						</div>
+					</div>
+					
+					<div class="row"> &nbsp </div>
+					<div class="row ml-2">
+						{{ form.f_ask_field.label_tag }}
+					</div>
+					<div class="text_field row ml-2">
+						<pre>{{ form.f_ask_field|safe }}</pre>
+					</div>
+					
+					<div class="row mt-4 ml-2">
+						
+						<button type="submit" name="save_changes" class="btn btn-primary">
+							<span class="fa fa-question"></span>
+							{% trans "Ask question" %}
+						</button>
+					</div>
+				
+					{% if user.is_superuser %}
+						<div class="row"> &nbsp </div>
+						<div class="row ml-2">
+							{{ form.f_debug_field.label_tag }}
+						</div>
+						<div class="text_field row ml-2">
+							<pre>{{ form.f_debug_field|safe }}</pre>
+						</div>
+					{% endif %}
+				
+				</div>
+			</div>
+		</div>
+
+		<div class="col border">
+			<h4> Chat archive</h4>
+			
+
+			<table border="1" colspan="2" width="100%">
+				<col style="width:80%">
+				<col style="width:20%">
+				<tr>
+					<th>Chat name </th>
+					<th>Delete</th>
+				</tr>
+				{% for record in chat_list %}
+				<tr>
+					<td><a href="{% url 'ai_sop:my_sop_chat_id' id=record.id %}" style="text-decoration:None">{{record.chat_name }}</a></td>
+			  
+					<td align="center"><a href="{% url 'ai_sop:my_del_chat' id=record.id %}" title="{% trans "Delete chat" %}" >
+					<span class="fa fa-trash-alt"></span>
+					</a></td>
+				</tr>
+				{% endfor %}  
+			</table>
+		</div>
+
+	</div>
+</form>
+</div>
+
+{% endblock %}

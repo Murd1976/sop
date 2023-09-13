@@ -1,0 +1,155 @@
+
+
+<h1>Customer Support SOP for Magic Vaporizers</h1>
+
+<h2>Delivery Inquiries</h2>
+<ul>
+    <li>EU - All orders placed after 13:00 (CET) will be shipped the next business day.</li>
+    <li>UK - All orders placed after 14:00 (pm.) will be shipped the next business day.</li>
+</ul>
+
+<h2>Instructions</h2>
+<ul>
+    <li>Always check the status of the parcel is Magento</li>
+    <li>Always check UPS/DPD tracking (don't trust customers word)</li>
+    <li>Lost parcels and UPS investigations > Helko only</li>
+    <li>Updates regarding above claims > Helko only</li>
+    <li>GSL Picking errors > Helko only</li>
+    <li>Change of address of orders > Helko only</li>
+    <li>Cancelation of orders > Helko and CC Uwe and CC Thomas</li>
+    <li>Stock count request or issue with mixed SKUs > U
+
+<h1>Customer Support SOP for Magic Vaporizers</h1>
+
+<h2>Delivery Inquiries</h2>
+
+<h3>Find Order</h3>
+<ol>
+    <li>Check order details to determine if package is in transit.</li>
+    <li>Provide customer with tracking link.</li>
+    <li>If investigation is required:
+        <ul>
+            <li>For EU shipments, send a new email to Uwe/Thomas in CC.</li>
+            <li>For UK shipments, send a new email to Cloud.</li>
+        </ul>
+    </li>
+    <li>If order not imported to warehouse, inform customer that it will ship today.</li>
+    <li>If tracking shows Returned To Sender, ask customer to confirm correct address and attach a screenshot from UPS tracking.</li>
+    <li>Resend the order in Magento.</li>
+</ol>
+
+<h3>No Tracking - Order Unpaid</h3>
+<ol>
+    <li>Check order date, payment method, and country of delivery.</li>
+
+
+<h1>Customer Support SOP for Magic Vaporizers</h1>
+
+<h2>Returns</h2>
+
+<h3>Checking if we received a return</h3>
+<ul>
+    <li>Check Cloud to see if we received a return.</li>
+</ul>
+
+<h3>Return Policy</h3>
+<ul>
+    <li>We have a strict return policy that we do not accept opened/used items.</li>
+    <li>Customers must fill out our return form <a href="https://magicvaporizers.com/return-form">here</a>.</li>
+    <li>If the picture is not clear that the sealing is still intact, ask the customer to send a new picture that shows it.</li>
+    <li>Once all is confirmed, provide the customer with a return address.</li>
+    <li>Return UK - Cloud</li>
+    <li>Return IE+other EU - GSL</li>
+</ul>
+
+<h3>RMA Doc Sheet</h3>
+<ul>
+    <li>All RMA
+
+<h1>Customer Support SOP for Magic Vaporizers</h1>
+
+<h2>Return Request (item was used)</h2>
+<ul>
+    <li>Unfortunately, you can not return the vaporizer, since it has been used. Note please, vaporizers are meant to be used orally, which means they classify as hygienic goods and are exempted from the right of withdrawal. Vaporizers are not returnable due to health regulations if the product has been used.</li>
+    <li>We can open the warranty claim, and raise your case with the manufacturer. If they approve the warranty, we will replace your device.</li>
+    <li>For DynaVap, and Davinci vaporizers we ask also the picture of inside the chamber.</li>
+</ul>
+
+<h2>Defecting / Malfunctioning Items / Battery Issues</h2>
+<ul>
+    <li>Battery Issue / loading slow</li>
+    <li>Customer can’t return the item, as it was used</li>
+    <li>Ask customer to test the device as follows:
+        <ul>
+           
+
+<h2>Customer Support SOP for Magic Vaporizers</h2>
+
+<h3>Missing Items</h3>
+<ul>
+    <li>Raise with Cloud/GSL  + add to sheet</li>
+    <li>Edit Order / Add Items to the order</li>
+    <ul>
+        <li>We can hold the order create a discount for the SKU, and after customer bought it, add it to this order</li>
+        <li>Unhold. Add correct item. Remove old item (there will be question something like if you remove this item you will delete invoice or something like that. Remove anyway). </li>
+        <li>Change status of the order to Cancelled (in the top of the order info --edit - order status - cancelled). </li>
+        <li>Click Un Cancel</li>
+        <li>Invoice - New Invoice - Submit Invoice</li>
+        <li>Check Invoice if items changed are correct</li>
+    </ul>
+</ul>
+
+<h3>Cancel Order</h3>
+<ul>
+    <li
+
+<h1>Customer Support SOP Document for Magic Vaporizers</h1>
+
+<h2>Refunds</h2>
+<ol>
+    <li>Reorder the product on Magento.</li>
+    <li>Set the price to 0 and click on update items.</li>
+    <li>Set free shipping and submit the order.</li>
+    <li>After invoicing, go to invoices and click on invoice (in the top) and submit invoice.</li>
+    <li>When the parcel is returned back to us, increase the stock manually, since the system can not do this.</li>
+</ol>
+
+<h2>Change Address</h2>
+<ol>
+    <li>Check if order was imported to the warehouse.</li>
+    <li>Scroll this order in Magento.</li>
+    <li>In the bottom you will see comments.</li>
+    <li>If not imported to the warehouse, put order on Hold.</li>
+    <li>If imported to warehouse, send a new email to Uwe and Thomas (Cc) and leave the ticket open,
+
+<h2>Customer Support SOP for Magic Vaporizers</h2>
+
+<h3>Wrong Plug / Plug doesn’t fit</h3>
+
+<p>In cases like this we need 1 photo of the box where is mentioned the plug type+photo of the plug itself + serial number of the device. When we have all this we can contact the manufacturer and ask them to ship the correct plug to the customer. Not always the manufacturer sends the goods though. Sometimes they ask us to replace the unit. Depends on brand and situation.</p>
+
+<h3>Price Matching</h3>
+
+<p>We can issue refunds to customers who ask for matching within 14 days. Be careful not to issue a full refund but only the correct amount. We can not revert refunds.</p>
+
+<p>How to issue a coupon code? VIDEO TO BE ADDED FROM SKYPE / TEMPLATE TO BE CREATED</p>
+
+<h3>Create Discounts</h3>
+
+<p>When we have cases about price match, we ask Sam to be sure that all is ok, except the following shops:</p>
+
+
+<h1>Customer Support SOP for Magic Vaporizers</h1>
+
+<h2>Daily Task</h2>
+<ul>
+    <li>Search Magento for orders placed using discount codes.</li>
+    <li>Put orders on hold.</li>
+    <li>Check if the discount code was used properly.</li>
+    <li>Unhold orders.</li>
+</ul>
+
+<h2>Cannabis</h2>
+<ul>
+    <li>Suggest Solo 2 or Boundless CFX for customers using only cannabis.</li>
+</ul>

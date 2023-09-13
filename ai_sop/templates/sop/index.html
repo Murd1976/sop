@@ -1,0 +1,27 @@
+{% extends "wiki/base.html" %}
+{% load sekizai_tags i18n wiki_tags static %}
+
+{# Intentionally empty, to allow easy customization with no copy-paste #}
+{% block wiki_pagetitle %}SOP & KB{% endblock %}
+
+{% block wiki_header_branding %}
+<a class="navbar-brand" href="/wiki/">SOP & KB</a>
+{% endblock %}
+
+{% block wiki_header_navlinks %}
+<ul class="nav navbar-nav mr-auto">
+	<li class="active">
+		<a href="{% url 'wiki:root' %}"> < Knowlege base > </a>
+	</li>
+	<li class="active">
+		<a href="{% url 'wiki:root' %}"> < SOP > </a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" href="/">{% trans "Home" %}</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" href="https://github.com/django-wiki/django-wiki" target="_blank">{% trans "About" %}</a>
+	</li>
+</ul>
+{% endblock %}
+

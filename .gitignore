@@ -1,0 +1,17 @@
+*.db
+*.log 
+*.logD
+*.zip
+redis.*
+test.py
+tests.py
+.ai_env/
+celery/
+reports/
+wiki/
+/sop/__pycache__/
+
+/ai_sop/__pycache__/
+/ai_sop/migrations/
+
+ai_sop/db/temp/
