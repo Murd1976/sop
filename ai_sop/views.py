@@ -11,12 +11,14 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import gettext as _
+#from django.db.models import Q
 
 import logging
 import openai
 import pandas as pd
 from bs4 import BeautifulSoup
 import re
+
 from django.views.generic import FormView
 
 from wiki import editors
@@ -33,6 +35,7 @@ from .forms import *
 from .models import *
 from .ai_sop import *
 from .ai_embedding import *
+
 
 # Create your views here.
 log = logging.getLogger(__name__)
@@ -604,7 +607,8 @@ class Create_Article_Page(FormView, ArticleMixin):
         c["editor"] = editors.getEditor()
         return c
         
-#=================================================================================================================================
+#============================================================================================================
+#----------------------------------------------------------------------------
 class SopView(ArticleMixin, TemplateView):
 
     template_name = "wiki/view.html"
@@ -613,12 +617,13 @@ class SopView(ArticleMixin, TemplateView):
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
-        
+        #print(my_tree_to_json())
         try:
+            
             self.root = wiki_models.URLPath.get_by_path("")
             self.three = wiki_models.URLPath.get_ordered_children(self.root)
             for three_elem in self.three:
-                print(f'Three: {three_elem}')
+                #print(f'Three: {three_elem}')
                 if (str(three_elem).strip() in ['sop/', 'sop_/']):
                     #messages.success( self.request,  _("The SOP section already exist."))
                     self.current_path = three_elem
@@ -710,3 +715,7 @@ class SopView(ArticleMixin, TemplateView):
         summary = ''
         for elem in list_article:
             new_url = self.auto_create_article(request, self.article, urlpath, elem.title, elem.title, elem.content, summary)
+            
+class AssistantView(ArticleMixin, TemplateView):
+
+    template_name = "wiki/view.html"

@@ -1,155 +1,94 @@
 
 
-<h1>Customer Support SOP for Magic Vaporizers</h1>
+<h1>Delivery Inquiries</h1>
 
-<h2>Delivery Inquiries</h2>
-<ul>
-    <li>EU - All orders placed after 13:00 (CET) will be shipped the next business day.</li>
-    <li>UK - All orders placed after 14:00 (pm.) will be shipped the next business day.</li>
-</ul>
+<h2>EU Orders</h2>
+<p>All orders placed after 13:00 (CET) will be shipped the next business day.</p>
 
-<h2>Instructions</h2>
-<ul>
-    <li>Always check the status of the parcel is Magento</li>
-    <li>Always check UPS/DPD tracking (don't trust customers word)</li>
-    <li>Lost parcels and UPS investigations > Helko only</li>
-    <li>Updates regarding above claims > Helko only</li>
-    <li>GSL Picking errors > Helko only</li>
-    <li>Change of address of orders > Helko only</li>
-    <li>Cancelation of orders > Helko and CC Uwe and CC Thomas</li>
-    <li>Stock count request or issue with mixed SKUs > U
+<h2>UK Orders</h2>
+<p>All orders placed after 14:00 (pm.) will be shipped the next business day.</p>
 
-<h1>Customer Support SOP for Magic Vaporizers</h1>
+<h2>Tracking Your Parcel</h2>
+<p>Always check the status of the parcel is Magento and UPS/DPD tracking (don't trust customers word).</p>
 
-<h2>Delivery Inquiries</h2>
+<h2>Lost Parcels and UPS Investigations</h2>
+<p>Helko only.</p>
 
-<h3>Find Order</h3>
-<ol>
-    <li>Check order details to determine if package is in transit.</li>
-    <li>Provide customer with tracking link.</li>
-    <li>If investigation is required:
-        <ul>
-            <li>For EU shipments, send a new email to Uwe/Thomas in CC.</li>
-            <li>For UK shipments, send a new email to Cloud.</li>
-        </ul>
-    </li>
-    <li>If order not imported to warehouse, inform customer that it will ship today.</li>
-    <li>If tracking shows Returned To Sender, ask customer to confirm correct address and attach a screenshot from UPS tracking.</li>
-    <li>Resend the order in Magento.</li>
-</ol>
+<h2>Updates Regarding Above Claims</h2>
+<p>Helko only.</p>
 
-<h3>No Tracking - Order Unpaid</h3>
-<ol>
-    <li>Check order date, payment method, and country of delivery.</li>
+<h2>GSL Picking Errors</h2>
+<p>Helko only.</p>
 
+<h2>Change of Address of Orders</h2>
+<p>Helko only.</p>
 
-<h1>Customer Support SOP for Magic Vaporizers</h1>
+<h2>Cancelation of Orders</h2>
+<p>Helko and CC
 
-<h2>Returns</h2>
+<h1>Order Tracking and Returns</h1>
 
-<h3>Checking if we received a return</h3>
-<ul>
-    <li>Check Cloud to see if we received a return.</li>
-</ul>
+<h2>In Transit</h2>
+<p>After checking your order details, it appears that the package is still in transit and should be delivered to you soon. You can view your tracking history directly from this link: <a href="https://www.ups.com/track?loc=en_DE&requester=QUIC&tracknum=1ZER21356857124027/trackdetails">UPS Tracking</a>. Please stay tuned for the tracking updates. Hope you'll enjoy your order when you have it in hands after all=).</p>
 
-<h3>Return Policy</h3>
-<ul>
-    <li>We have a strict return policy that we do not accept opened/used items.</li>
-    <li>Customers must fill out our return form <a href="https://magicvaporizers.com/return-form">here</a>.</li>
-    <li>If the picture is not clear that the sealing is still intact, ask the customer to send a new picture that shows it.</li>
-    <li>Once all is confirmed, provide the customer with a return address.</li>
-    <li>Return UK - Cloud</li>
-    <li>Return IE+other EU - GSL</li>
-</ul>
+<h2>Investigation Required</h2>
+<p>For EU shipments, send a new email to Uwe/Thomas in CC at  /  (ask them to contact UPS for lost parcels etc). For UK shipments, send a new email Cloud at support@supportcloudfulfilment.freshdesk.com.</p>
 
-<h3>RMA Doc Sheet</h3>
-<ul>
-    <li>All RMA
+<h2>Order Not Imported to Warehouse</h2>
+<p>Will ship today. NO CANNED REPLY - TO BE ADDED.</p>
 
-<h1>Customer Support SOP for Magic Vaporizers</h1>
+<h2
 
-<h2>Return Request (item was used)</h2>
-<ul>
-    <li>Unfortunately, you can not return the vaporizer, since it has been used. Note please, vaporizers are meant to be used orally, which means they classify as hygienic goods and are exempted from the right of withdrawal. Vaporizers are not returnable due to health regulations if the product has been used.</li>
-    <li>We can open the warranty claim, and raise your case with the manufacturer. If they approve the warranty, we will replace your device.</li>
-    <li>For DynaVap, and Davinci vaporizers we ask also the picture of inside the chamber.</li>
-</ul>
+<h1>Returns Policy for Magic Vaporizers</h1>
+
+<h2>Checking for Returns</h2>
+<p>To check if we received back a return, check Cloud.</p>
+
+<h2>Return Policy</h2>
+<p>If a customer wants to return his order, we have a strict return policy that we do not accept opened/used items. Therefore customer needs to fill out our return form <a href="https://magicvaporizers.com/return-form">here</a>. If the picture is not clear that the sealing is still intact we need to ask the customer to send us a new picture that shows it. Once all is confirmed we will then provide the customer with a return address.</p>
+
+<h3>Return UK</h3>
+<p>Return UK - Cloud</p>
+
+<h3>Return IE+other EU</h3>
+<p>Return IE+other EU - GSL</p>
+
+<h2>RMA Doc Sheet</h2>
+<p>All RMA's when request files or videos are to be uploaded to the dropbox folder using <a href
+
+<h1>Return Requests and Missing Items</h1>
+
+<h2>Warranty Video Request/Upload To Drive</h2>
+
+<p>We ask customer to submit a claim for warranty and then we will pass it to the manufacturer. Unfortunately, you can not return the vaporizer, since it has been used. Note please, vaporizers are meant to be used orally, which means they classify as hygienic goods and are exempted from the right of withdrawal. Vaporizers are not returnable due to health regulations if the product has been used.</p>
+
+<p>However, we can open the warranty claim, and raise your case with the manufacturer. If they approve the warranty, we will replace your device.</p>
+
+<p>For DynaVap, and Davinci vaporizers we ask also the picture of inside the chamber.</p>
 
 <h2>Defecting / Malfunctioning Items / Battery Issues</h2>
-<ul>
-    <li>Battery Issue / loading slow</li>
-    <li>Customer can’t return the item, as it was used</li>
-    <li>Ask customer to test the device as follows:
-        <ul>
-           
 
-<h2>Customer Support SOP for Magic Vaporizers</h2>
+<p>Battery Issue / loading slow</p>
 
-<h3>Missing Items</h3>
-<ul>
-    <li>Raise with Cloud/GSL  + add to sheet</li>
-    <li>Edit Order / Add Items to the order</li>
-    <ul>
-        <li>We can hold the order create a discount for the SKU, and after customer bought it, add it to this order</li>
-        <li>Unhold. Add correct item. Remove old item (there will be question something like if you remove this item you will delete invoice or something like that. Remove anyway). </li>
-        <li>Change status of the order to Cancelled (in the top of the order info --edit - order status - cancelled). </li>
-        <li>Click Un Cancel</li>
-        <li>Invoice - New Invoice - Submit Invoice</li>
-        <li>Check Invoice if items changed are correct</li>
-    </ul>
-</ul>
+<p>Customer can’t return the item, as it was used. Ask customer to test the device as follows: Please turn your fully
 
-<h3>Cancel Order</h3>
-<ul>
-    <li
+This guide provides instructions on how to cancel, edit, and change an address for an order, as well as how to add items to an order, hold an order, create a discount, unhold an order, change the status of an order to cancelled, un-cancel an order, create a new invoice, and check the invoice for correct items. Additionally, instructions are provided on how to cancel an order if it has been imported to the warehouse, how to refund an order, and how to send a replacement.
 
-<h1>Customer Support SOP Document for Magic Vaporizers</h1>
+<h1>Refunds and Reorders on Magento</h1>
 
-<h2>Refunds</h2>
-<ol>
-    <li>Reorder the product on Magento.</li>
-    <li>Set the price to 0 and click on update items.</li>
-    <li>Set free shipping and submit the order.</li>
-    <li>After invoicing, go to invoices and click on invoice (in the top) and submit invoice.</li>
-    <li>When the parcel is returned back to us, increase the stock manually, since the system can not do this.</li>
-</ol>
+<h2>How to Send a Replacement</h2>
+<p>Reorder on Magento: Reorder then set the price 0 and click on update items. Set free shipping and submit order. After invoice it, go to invoices and click on invoice (in the top) and submit invoice. When the parcel is returned back to us (no matter why refused, not picked up or just return case) we need to increase the stock manually, since the system can not do this.</p>
 
 <h2>Change Address</h2>
-<ol>
-    <li>Check if order was imported to the warehouse.</li>
-    <li>Scroll this order in Magento.</li>
-    <li>In the bottom you will see comments.</li>
-    <li>If not imported to the warehouse, put order on Hold.</li>
-    <li>If imported to warehouse, send a new email to Uwe and Thomas (Cc) and leave the ticket open,
+<p>Check if order was imported to the warehouse. Scroll this order in Magento. In the bottom you will see comments. If not imported to the warehouse, put order on Hold.</p>
 
-<h2>Customer Support SOP for Magic Vaporizers</h2>
+<h2>Invoice Request</h2>
+<p>1 - find order in magento, then open the invoice. 2- click on the invoice. 3- click on the print. The invoice will be downloaded then just attach it to the email and answer Please find your invoice attached template.</p>
 
-<h3>Wrong Plug / Plug doesn’t fit</h3>
+<h2>Warranty
 
-<p>In cases like this we need 1 photo of the box where is mentioned the plug type+photo of the plug itself + serial number of the device. When we have all this we can contact the manufacturer and ask them to ship the correct plug to the customer. Not always the manufacturer sends the goods though. Sometimes they ask us to replace the unit. Depends on brand and situation.</p>
-
-<h3>Price Matching</h3>
-
-<p>We can issue refunds to customers who ask for matching within 14 days. Be careful not to issue a full refund but only the correct amount. We can not revert refunds.</p>
-
-<p>How to issue a coupon code? VIDEO TO BE ADDED FROM SKYPE / TEMPLATE TO BE CREATED</p>
-
-<h3>Create Discounts</h3>
-
-<p>When we have cases about price match, we ask Sam to be sure that all is ok, except the following shops:</p>
-
-
-<h1>Customer Support SOP for Magic Vaporizers</h1>
-
-<h2>Daily Task</h2>
-<ul>
-    <li>Search Magento for orders placed using discount codes.</li>
-    <li>Put orders on hold.</li>
-    <li>Check if the discount code was used properly.</li>
-    <li>Unhold orders.</li>
-</ul>
-
+Title: Price Matching and Discounts for Wrong Plug/Plug Doesn't Fit Situations
+<h1>Daily Task for Price-match Approved and Sending Discount Code</h1>
+<p>Once a day, it is necessary to search in Magento for orders placed using discount codes. These orders will be on hold and not sent to the warehouse. To ensure that the discount code was used properly, it is necessary to unhold the orders after they have been placed.</p>
 <h2>Cannabis</h2>
-<ul>
-    <li>Suggest Solo 2 or Boundless CFX for customers using only cannabis.</li>
-</ul>
+<p>For customers using only cannabis, it is recommended to have a look at Solo 2 or Boundless cfx.</p>

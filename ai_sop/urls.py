@@ -12,6 +12,7 @@ urlpatterns = [
     path('ai/chat/del/<int:id>/', views.delete_chat, name= 'my_del_chat'),
     re_path(r"^(?P<path>.+/|)_create/$", views.Create_Article_Page.as_view(), name = 'my_sop_create_article'),
     
+    re_path(r"^ai/assistant/(?P<article_id>[0-9]+)/$", views.AssistantView.as_view(), name = 'my_sop_ai_assistant'),
     re_path(r"^ai/sop/(?P<article_id>[0-9]+)/$", views.SopView.as_view(), name = 'my_sop_sop'),
     
     #path('chat/gpt/instruction/chat/', views.chat_instruction, name= 'my_chat_gpt_instruction'),
