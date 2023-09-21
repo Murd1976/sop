@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.views.generic.base import TemplateView
 from django.utils.translation import gettext as _
+from django.http import JsonResponse, HttpResponse
 #from django.db.models import Q
 
 import logging
@@ -18,6 +19,7 @@ import openai
 import pandas as pd
 from bs4 import BeautifulSoup
 import re
+import json
 
 from django.views.generic import FormView
 
@@ -25,6 +27,7 @@ from wiki import editors
 #from wiki import models as wiki_models
 from wiki import forms as wiki_forms
 from wiki.views.mixins import ArticleMixin
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from wiki.decorators import get_article
 from wiki.conf import settings
@@ -612,8 +615,6 @@ class Create_Article_Page(FormView, ArticleMixin):
 class SopView(ArticleMixin, TemplateView):
 
     template_name = "wiki/view.html"
-    
-    
 
     @method_decorator(get_article(can_read=True))
     def dispatch(self, request, article, *args, **kwargs):
@@ -718,4 +719,53 @@ class SopView(ArticleMixin, TemplateView):
             
 class AssistantView(ArticleMixin, TemplateView):
 
-    template_name = "wiki/view.html"
+    @method_decorator(csrf_exempt)  # Отключите CSRF проверку (в реальной жизни лучше настроить CSRF)
+    @method_decorator(get_article(can_write=True, can_create=True))    
+    def dispatch(self, request, article, *args, **kwargs):
+        print("Got request to AI.")
+        return super().dispatch(request, article, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # Получение данных с сайта
+        instruction = request.POST.get('instruction')
+        article_id = request.POST.get('article_id')
+        content = self.orig_content = self.article.current_revision.content
+        title = self.orig_content = self.article.current_revision.title
+        #print(f" FeedBack: {instruction} Article title: {title}\n\n Article content: {content}\n")
+        
+        # Обработка данных
+        #processed_text = f" FeedBack: {instruction} Article title: {title}\n\n Article content: {content}\n" #'Returned text from server!'
+        system_file = 'edit_instruction.txt'
+        try:
+            gptLearning = WorkerОpenAI_SOP(system_file, company_dir)
+        except openai.OpenAIError as e:
+            messages.error( self.request, _("OpenAI API Error: %s") % str(e), )
+                        
+        query = f" FeedBack: {instruction} Article title: {title}\n\n Article content: {content}\n"
+            
+        try:
+            response = gptLearning.get_gpt_proposal(query, verbose = 1)
+        except openai.OpenAIError as e:
+            messages.error( self.request, _("OpenAI API Error: %s") % str(e), )
+        print(type(response))
+        print(response)
+        res_data = {}
+        try:
+            res_data = json.loads(response.replace('\n', '\\n'))            
+            
+        except json.JSONDecodeError as e:
+            #messages.error( self.request, _("JSON Error: %s") % str(e), )
+            print(f"JSON Error: {e}")
+            res_data = {
+                'title': '',
+                'content': '',
+                'summary': ''
+            }
+            res_data["title"] = title
+            res_data["content"] = response
+            res_data["summary"] = ''
+        # Отправка результатов на сайт
+        
+        return JsonResponse(res_data)
+        #return JsonResponse({'text': processed_text })
+        #return HttpResponse(content_text)

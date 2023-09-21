@@ -68,7 +68,7 @@ class WorkerОpenAI_SOP():
       self.chat_manager_system = " "
     '''
     
-    self.load_file(self.system_directory, self.system_doc_file)
+    self.chat_manager_system = self.load_file(self.system_directory, self.system_doc_file)
       
     # Если База данных embedding уже создана ранее
     if os.path.exists(self.persist_directory + 'embedding_info.inf'):
@@ -560,7 +560,7 @@ class WorkerОpenAI_SOP():
       #{"role": "user", "content": topic}
       ]
 
-    print(f"Prompt: {messages}")
+    #print(f"Prompt: {messages}")
     
     # example token count from the function defined above
     if verbose: 

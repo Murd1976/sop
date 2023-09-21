@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-^!3l59ef4^znykm594!oaanmd+rfnudl6r)73lo)_maghr-it9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["212.127.94.159", "docker10157-ft-stable.node.cloudlets.zone", "node10157-ft-stable.node.cloudlets.zone", "127.0.0.1"]
+ALLOWED_HOSTS = ["212.127.94.44", "docker10159-ft-stable.node.cloudlets.zone", "node10159-ft-stable.node.cloudlets.zone", "127.0.0.1"]
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
