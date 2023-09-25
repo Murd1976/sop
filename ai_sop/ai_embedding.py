@@ -28,6 +28,7 @@ import re
 import logging
 logging.getLogger("langchain.text_splitter").setLevel(logging.ERROR) # игнорирование предупреждений
 logging.getLogger("chromadb").setLevel(logging.ERROR)
+import docx
 
 import openai
 import tiktoken
@@ -148,26 +149,48 @@ class WorkerОpenAIChat():
 
     #print("File is loading: ", doc_dir)
     self.debug_log.append("File is loading:" + doc_dir)
-    # разбиваем на несколько частей с помощью метода split_text
+    # проходимся по всем данным
     count_token = 0
-    with open(doc_dir, "r") as f:
-      for chunk in splitter.split_text(f.read()):
-          #print('Длина символов =  ', len(chunk))
+    f_info = open(persist_directory + 'embedding_info.inf', 'w')
+    f_info.write('Used files:')
+    for file_ in sorted(os.listdir(doc_dir)):
+        print("Загружается файл: ", file_)
+        
+        self.debug_log.append("File is loading:" + doc_dir)
+        # разбиваем на несколько частей с помощью метода split_text
+        if (os.path.isfile(doc_dir + file_)):
+            with open(doc_dir + file_, "r") as f:
+                f_info.write(str(file_))
+                self.debug_log.append("File is loading:" + file_)
+                buf = file_.split('.')
+                if buf[-1] in ['doc', 'docx'] :
+                    # Load DOC/DOCX document
+                    document_txt = ""
+                    doc = docx.Document(self.data_directory + file_)
+                    for docpara in doc.paragraphs:
+                        document_txt += docpara.text + '\n'
+                    #print(document_txt)
+                else:
+                    # This is a long document we can split up.
+                    document_txt = self.load_document_text(self.data_directory + file_)
+                    
+                for chunk in splitter.split_text(document_txt):
+                  #print('Длина символов =  ', len(chunk))
 
-          count_token += num_tokens_from_string(chunk, "cl100k_base")
-          if count_token > 140000:
-           
-            #print('Count: ', count_token, ' Tokens:  ', num_tokens_from_string(' '.join([x.page_content for x in self.buf_chunks]), "cl100k_base"))
-            
-            count_token = 0
-            self.source_chunks.append(copy.deepcopy(self.buf_chunks))
-           
-            #print('Size: ', len(self.buf_chunks), '\n')
-            self.buf_chunks.clear()
-            
-            self.buf_chunks.append(Document(page_content=chunk, metadata={'source': doc_dir}))
-          else:
-            self.buf_chunks.append(Document(page_content=chunk, metadata={'source': doc_dir}))
+                    count_token += num_tokens_from_string(chunk, "cl100k_base")
+                    if count_token > 140000:
+                   
+                    #print('Count: ', count_token, ' Tokens:  ', num_tokens_from_string(' '.join([x.page_content for x in self.buf_chunks]), "cl100k_base"))
+                    
+                        count_token = 0
+                        self.source_chunks.append(copy.deepcopy(self.buf_chunks))
+                   
+                    #print('Size: ', len(self.buf_chunks), '\n')
+                        self.buf_chunks.clear()
+                    
+                        self.buf_chunks.append(Document(page_content=chunk, metadata={'source': doc_dir}))
+                    else:
+                        self.buf_chunks.append(Document(page_content=chunk, metadata={'source': doc_dir}))
 
     self.source_chunks.append(copy.deepcopy(self.buf_chunks))
 

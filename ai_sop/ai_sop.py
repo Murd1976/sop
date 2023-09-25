@@ -16,12 +16,16 @@ import docx
 
 import os
 import re
+import time
+from datetime import datetime
 
 import openai
 import tiktoken
 import copy
 #from dotenv import load_dotenv
 from .web_utils import scrape_site
+
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 class WorkerОpenAI_SOP():
   sys_dir = 'ai_sop/db/'
@@ -112,29 +116,45 @@ class WorkerОpenAI_SOP():
     
     # проходимся по всем данным
     count_token = 0
+    f_info = open(persist_directory + 'embedding_info.inf', 'w')
+    f_info.write('Used files:')
     for file_ in sorted(os.listdir(doc_dir)):
         print("Загружается файл: ", file_)
+        
         self.debug_log.append("File is loading:" + doc_dir)
         # разбиваем на несколько частей с помощью метода split_text
-        
-        with open(doc_dir + file_, "r") as f:
-          for chunk in splitter.split_text(f.read()):
-              #print('Длина символов =  ', len(chunk))
+        if (os.path.isfile(doc_dir + file_)):
+            with open(doc_dir + file_, "r") as f:
+                f_info.write(str(file_))
+                self.debug_log.append("File is loading:" + file_)
+                buf = file_.split('.')
+                if buf[-1] in ['doc', 'docx'] :
+                    # Load DOC/DOCX document
+                    document_txt = ""
+                    doc = docx.Document(self.data_directory + file_)
+                    for docpara in doc.paragraphs:
+                        document_txt += docpara.text + '\n'
+                    #print(document_txt)
+                else:
+                    # This is a long document we can split up.
+                    document_txt = self.load_document_text(self.data_directory + file_)
+                for chunk in splitter.split_text(document_txt):
+                    #print('Длина символов =  ', len(chunk))
 
-              count_token += self.num_tokens_from_string(chunk, "cl100k_base")
-              if count_token > 140000:
-               
-                #print('Count: ', count_token, ' Tokens:  ', num_tokens_from_string(' '.join([x.page_content for x in self.buf_chunks]), "cl100k_base"))
-                
-                count_token = 0
-                self.source_chunks.append(copy.deepcopy(self.buf_chunks))
-               
-                #print('Size: ', len(self.buf_chunks), '\n')
-                self.buf_chunks.clear()
-                
-                self.buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
-              else:
-                self.buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
+                    count_token += self.num_tokens_from_string(chunk, "cl100k_base")
+                    if count_token > 140000:
+                   
+                        #print('Count: ', count_token, ' Tokens:  ', num_tokens_from_string(' '.join([x.page_content for x in self.buf_chunks]), "cl100k_base"))
+                    
+                        count_token = 0
+                        self.source_chunks.append(copy.deepcopy(self.buf_chunks))
+                   
+                        #print('Size: ', len(self.buf_chunks), '\n')
+                        self.buf_chunks.clear()
+                    
+                        self.buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
+                    else:
+                        self.buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
 
     self.source_chunks.append(copy.deepcopy(self.buf_chunks))
 
@@ -156,9 +176,8 @@ class WorkerОpenAI_SOP():
       
     self.db.persist()
     
-    f = open(persist_directory + 'embedding_info.inf', 'w')
-    f.write(str(datetime.now()))
-    f.close()
+    
+    f_info.close()
     
     print('\n ===========================================:')
     print('\n Number of tokens in source document: ', count_token)

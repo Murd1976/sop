@@ -108,3 +108,6 @@ class AiCreateForm(forms.Form, wiki_forms.SpamProtectionMixin):
     def clean(self):
         self.check_spam()
         return self.cleaned_data
+        
+class DbLoadForm(forms.Form):
+    db_name = forms.CharField(required=True)

@@ -7,6 +7,7 @@ test.py
 tests.py
 .ai_env/
 celery/
+static/
 reports/
 wiki/
 /sop/__pycache__/
@@ -15,3 +16,7 @@ wiki/
 /ai_sop/migrations/
 
 ai_sop/db/temp/
+ai_sop/db/chat/embedding/
+ai_sop/db/sop/embedding/
+ai_sop/db/web/embedding/
+ai_sop/db/sys/embedding/

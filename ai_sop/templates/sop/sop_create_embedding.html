@@ -1,0 +1,39 @@
+{% extends "sop/sop_data_tools.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block title %} Create embeddings {% endblock %}
+
+{% block wiki_contents %}
+<h2> Load data base </h2>
+<div class="conteiner-fluid mb-2 border">
+<form name="Load data base" method="POST" >
+  {% csrf_token %}
+  <div class="row mb-2">
+    
+	<div class="col">
+		<div class="row">&nbsp </div>
+		<div class="row ml-4">
+			{{ form.db_name.label_tag }}
+		</div>
+		<div class="row ml-4">
+			{{ form.db_name }}<br>
+		</div>
+		<div class="row">&nbsp </div>
+		<div class="row mt-4 ml-4">
+			<button class="btn btn-primary" type="submit" name="save" value="1" id="id_run">
+				 <span class="fa fa-check"></span>
+				 {% trans "Run" %}
+            </button>
+		</div>
+	</div>
+		
+  </div>
+
+
+<h2> Data archive</h2>
+
+
+</form>
+</div>
+
+{% endblock %}
