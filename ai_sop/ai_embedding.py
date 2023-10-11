@@ -408,10 +408,10 @@ class WorkerОpenAIChat():
   def answer_index(self, topic, user_question, temp=1, verbose=0):
 
       # Selecting documents similar to the question
-      docs = self.search_index.similarity_search(f'Subject": {user_question["subject"]}\n"' + "\n\n Сurrent issue: " + user_question['issue'], k=5)
-      #docs = self.search_index.similarity_search(topic, k=5)
+      docs = self.db.similarity_search(f'Subject": {user_question["subject"]}\n"' + "\n\n Сurrent issue: " + user_question['issue'], k=5)
+      #docs = self.db.similarity_search(topic, k=5)
       
-      #docs = self.search_index.get_relevant_documents(topic)
+      #docs = self.db.get_relevant_documents(topic)
       
       #print(f'\n {topic} \n')
       message_content = re.sub(r'\n{2}', ' ', '\n '.join([f'\nText №{i+1}\n=====================' + doc.page_content + '\n' for i, doc in enumerate(docs)]))

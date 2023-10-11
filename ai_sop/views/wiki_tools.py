@@ -178,7 +178,7 @@ def chat_page(request, id = 0):
             full_query = {}
             full_query['company'] = "MagicVaporizers" #dict(company_list)[int(userform.cleaned_data["f_company"])]
             full_query['user_name'] = request.user.username
-            print(f"\n UserName: {full_query['user_name']}\n")
+            #print(f"\n UserName: {full_query['user_name']}\n")
             full_query['subject'] = dict(subject_list)[int(userform.cleaned_data["f_subject"])]
             full_query['issue'] = query
             
@@ -197,6 +197,7 @@ def chat_page(request, id = 0):
             try:
                 response = gptLearning.answer_user_question(full_query, temp = tmp, verbose = 1)
             except openai.OpenAIError as e:
+                messages.success(request, mark_safe(_("OpenAI API Error: %s") % str(e)))
                 template = 'sop/sop_msg_page.html'
                 context = {"my_msg":f'OpenAI API Error: {e}'}
                 return render(request, template, context)
@@ -228,26 +229,27 @@ def chat_page(request, id = 0):
                     ai_answer = response
                 )
             
-            messages = ''
+            my_messages = ''
             res = ChatHistory.objects.filter(message=curr_chat)
                     
             for qa in res:
                 if not (pd.isna(qa.user_question)):
-                    messages += '\n\n User: ' + qa.user_question + ' ' + '\n Assistant: \n' + (qa.ai_answer if qa.ai_answer is not None else '')
+                    my_messages += '\n\n User: ' + qa.user_question + ' ' + '\n Assistant: \n' + (qa.ai_answer if qa.ai_answer is not None else '')
             
-            
+            '''
             st = ""
             for i in range(len(gptLearning.debug_log)):
                 st += str(gptLearning.debug_log[i])
-                        
+            '''            
            # print(request.headers)
             #print(response)
             '''
-            messages = '\n\n User: ' + query + ' ' + '\n Assistant: \n' + response
-            parts = ChatForm(initial= {"f_chat_field":messages, 'f_debug_field':st})
+            my_messages = '\n\n User: ' + query + ' ' + '\n Assistant: \n' + response
+            parts = ChatForm(initial= {"f_chat_field":my_messages, 'f_debug_field':st})
             
             context = {"form": parts, "chat_list": ''}
             return render(request, template, context)
+            '''
             '''
             # Формируем URL-адрес с параметром запроса
             redirect_url = reverse('ai_sop:my_sop_chat_id', kwargs={'id': curr_chat.id})
@@ -256,12 +258,13 @@ def chat_page(request, id = 0):
             return redirect(redirect_url)
             
             #return redirect('chat:my_chat_gpt_id', id=curr_chat.id)
-        else:
-            template = 'sop/sop_msg_page.html'
-            context = {"my_msg":"Something was wrong..."}
-            return render(request, template, context)
-            
-    messages = ''
+            '''
+            if request.user.is_superuser:
+                log = ' '.join([x.replace('\n', '<br>') for x in gptLearning.debug_log])
+                messages.success(request, mark_safe(_("Answer is got! <br> %s") % log))
+                
+                    
+    my_messages = ''
     if (id > 0): 
         curr_chat = ChatList.objects.get(id=id)
     else:
@@ -276,10 +279,11 @@ def chat_page(request, id = 0):
                     
         for qa in res:
             if not (pd.isna(qa.user_question)):
-                messages += '\n\n User: ' + qa.user_question + ' ' + '\n Assistant: \n' + (qa.ai_answer if qa.ai_answer is not None else '')
-        additional_data = request.GET.get('debug_field', None)
+                my_messages += '\n\n User: ' + qa.user_question + ' ' + '\n Assistant: \n' + (qa.ai_answer if qa.ai_answer is not None else '')
+        #additional_data = request.GET.get('debug_field', None)
         
-        parts = ChatForm(initial= {"f_company":get_key_by_val(curr_chat.company, company_list), "f_subject":curr_chat.subject, "f_chat_name":curr_chat.chat_name, "f_chat_field":messages, 'f_debug_field':additional_data})
+        #parts = ChatForm(initial= {"f_company":get_key_by_val(curr_chat.company, company_list), "f_subject":curr_chat.subject, "f_chat_name":curr_chat.chat_name, "f_chat_field":my_messages, 'f_debug_field':additional_data})
+        parts = ChatForm(initial= {"f_company":get_key_by_val(curr_chat.company, company_list), "f_subject":curr_chat.subject, "f_chat_name":curr_chat.chat_name, "f_chat_field":my_messages})
         
     
     context = {"form": parts, "chat_list": chats}
