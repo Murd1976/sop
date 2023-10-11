@@ -7,8 +7,12 @@ app_name = 'ai_sop'
 urlpatterns = [
     #path('', views.index, name='index'),
     path('ai/chat/data_tools/', data_tools.tools_page, name = 'my_sop_data_tools'),
-    path('ai/chat/data_tools/chat_embedding/', data_tools.create_chat_embedding_page, name = 'my_sop_chat_embedding'),
-    path('ai/chat/data_tools/prop_embedding/', data_tools.create_prop_embedding_page, name = 'my_sop_prop_embedding'),
+    path('ai/chat/data_tools/embedding/<str:em_type>/', data_tools.create_embedding_page, name = 'my_sop_embedding'),
+    #path('ai/chat/data_tools/chat_embedding/', data_tools.create_chat_embedding_page, name = 'my_sop_chat_embedding'),
+    #path('ai/chat/data_tools/prop_embedding/', data_tools.create_prop_embedding_page, name = 'my_sop_prop_embedding'),
+    #path('ai/chat/data_tools/del_file/<int:file_id>/', data_tools.delete_files_view, name= 'my_del_data'),
+    path('ai/chat/data_tools/upload/', data_tools.upload_file, name='my_upload_file'),
+    path('ai/chat/data_tools/del_file/', data_tools.delete_files_view, name='my_del_data'),
     
     path('ai/chat/', wiki_tools.chat_page, name = 'my_sop_chat'),
     path('ai/chat/<int:id>', wiki_tools.chat_page, name = 'my_sop_chat_id'),

@@ -1,13 +1,22 @@
 {% extends "sop/sop_data_tools.html" %}
 {% load wiki_tags i18n sekizai_tags static %}
 
+{% block extra_styles %}
+{% endblock %}
+
 {% block title %} Create embeddings {% endblock %}
 
-{% block wiki_contents %}
-<h2> Load data base </h2>
-<div class="conteiner-fluid mb-2 border">
-<form name="Load data base" method="POST" >
+{% block tool_page %}
+
+
+<div class="row ml-2 mt-2" >
+	<h4> Create {{em_type}} embeddings </h4>
+</div>
+<div class="conteiner-fluid mb-2 ">
+<form name="Load data base" method="POST" id="run-form" >
   {% csrf_token %}
+  <input type="hidden" name="selected_files" id="selected-files-input" value="">
+  
   <div class="row mb-2">
     
 	<div class="col">
@@ -18,6 +27,15 @@
 		<div class="row ml-4">
 			{{ form.db_name }}<br>
 		</div>
+		
+		<div class="row">&nbsp </div>
+		<div class="row ml-4">
+			<b>{{ form.f_embedding_mode.label }} </b>
+		</div>
+		<div class="row ml-4">
+			{{ form.f_embedding_mode }}
+		</div>
+		
 		<div class="row">&nbsp </div>
 		<div class="row mt-4 ml-4">
 			<button class="btn btn-primary" type="submit" name="save" value="1" id="id_run">
@@ -26,14 +44,29 @@
             </button>
 		</div>
 	</div>
-		
+	
   </div>
-
-
-<h2> Data archive</h2>
 
 
 </form>
 </div>
+
+{% addtoblock "js" %}
+<script>
+document.getElementById('id_run').addEventListener('click', function(event) {
+  event.preventDefault();  // prevent the default action
+  console.log("Button clicked!");
+  const selectedFilesInput = document.getElementById('selected-files-input');
+  const idsToRun = Array.from(selectedRows).join(',');
+  selectedFilesInput.value = idsToRun;
+
+  if(idsToRun.length > 0) {
+    document.getElementById('run-form').submit();
+  } else {
+    alert('Выберите строки для выполнения.');
+  }
+});
+</script>
+{% endaddtoblock %}
 
 {% endblock %}

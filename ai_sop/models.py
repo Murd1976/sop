@@ -3,7 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.utils.translation import gettext_lazy as _
 
-version = 1.0
+from .utilities import get_upload_path
+version = 2.0
 
 class AdvUser(AbstractUser):
     is_activated = models.BooleanField(default = True, db_index = True, verbose_name = 'Has been activated ?')
@@ -52,6 +53,11 @@ class ChatHistory(models.Model):
 
     def __str__(self):
         return f"ChatHistory: {self.user_question} - {self.ai_answer}"
-
+        
+class UploadedFile(models.Model):
+    upload_file_owner = models.ForeignKey(AdvUser, on_delete=models.DO_NOTHING, related_name='uploaded_files')
+    upload_file = models.FileField(upload_to=get_upload_path)
+    is_used_chat = models.BooleanField(default = False)
+    is_used_prop = models.BooleanField(default = False)
 
 

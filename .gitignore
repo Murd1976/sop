@@ -11,6 +11,7 @@ static/
 reports/
 wiki/
 /sop/__pycache__/
+/ai_sop/views/__pycache__/
 
 /ai_sop/__pycache__/
 /ai_sop/migrations/

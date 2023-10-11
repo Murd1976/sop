@@ -153,7 +153,7 @@ def chat_page(request, id = 0):
     system_file = 'support_instruction.txt'
     
     try:
-        gptLearning = WorkerОpenAIChat(system_file, company_dir)
+        gptLearning = WorkerОpenAIChat('chroma', system_file, company_dir)
     except openai.OpenAIError as e:
         template = 'sop/sop_msg_page.html'
         context = {"my_msg":f'OpenAI API Error: {e}'}
@@ -410,7 +410,7 @@ def get_ai_content(f_name, mode = 'usal', instructions = ''):
     #res_f_name = 'magicvaporizers.txt'
     #my_url = "https://magicvaporizers.co.uk"
         
-    gptLearning = WorkerОpenAI_SOP('', company_dir)
+    gptLearning = WorkerОpenAI_SOP('chroma', '', company_dir)
     
     #text = scrape_site(my_url, res_f_name)
     #text = gptLearning.web_text_filter_2('magicvaporizers_short.txt')
@@ -738,7 +738,7 @@ class AssistantView(ArticleMixin, TemplateView):
         system_file = 'edit_instruction.txt'
         
         try:
-            gptLearning = WorkerОpenAI_SOP(system_file, company_dir)
+            gptLearning = WorkerОpenAI_SOP('chroma', system_file, company_dir)
         except openai.OpenAIError as e:
             messages.error( self.request, _("OpenAI API Error: %s") % str(e), )
                         

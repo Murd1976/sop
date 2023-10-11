@@ -1,0 +1,49 @@
+{% extends "sop/sop_data_tools.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+{% load my_filters %}
+
+{% block extra_styles %}
+{% endblock %}
+
+{% block title %} File uploader {% endblock %}
+
+{% block tool_page %}
+
+<div class="row ml-2 mt-2" >
+	<h4> Load data </h4>
+</div>
+<div class="conteiner-fluid mb-2 ">
+<form name="Load data base" method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row">&nbsp </div>
+  <div class="row mb-2">
+    
+	<div class="col ">
+		<div class="row ml-2">
+			{{ form.upload_file.label }}
+			
+		</div>
+		<div class="row">&nbsp </div>
+		<div class="row ml-2">
+			{{ form.upload_file }}
+		</div>
+		
+		<div class="row">&nbsp </div>
+		<div class="row">&nbsp </div>
+		<div class="row ml-2">
+			<button class="btn btn-primary" type="submit" name="upload" value="1" id="id_upload">
+				<span class="fa fa-check"></span>
+				{% trans "Upload" %}
+			</button>
+		</div>
+	</div>
+	
+	
+		
+  </div>
+
+
+</form>
+</div>
+
+{% endblock %}

@@ -7,7 +7,7 @@ from wiki import models as wiki_models
 from django.utils.translation import gettext, gettext_lazy as _, pgettext_lazy
 from wiki.editors import getEditor
 
-from .models import AdvUser
+from .models import *
 from .apps import user_registered
 
 version = 1.0
@@ -110,4 +110,23 @@ class AiCreateForm(forms.Form, wiki_forms.SpamProtectionMixin):
         return self.cleaned_data
         
 class DbLoadForm(forms.Form):
+    MY_CHOICES = (
+        ('1', 'Add data to embeddings'),
+        ('2', 'New embeddings base'),
+    )
+    
+    f_embedding_mode = forms.ChoiceField( label= "Select embedding creation mode:",
+        initial = '1',
+        choices=MY_CHOICES,
+        widget=forms.RadioSelect,
+        required=True
+    )
+    
     db_name = forms.CharField(required=True)
+    
+class UploadFileForm(forms.ModelForm):
+    upload_file = forms.FileField(label= "Upload file:", widget=forms.FileInput(attrs={'title': 'Please, select a file.'}))
+    class Meta:
+        model = UploadedFile
+        fields = ('upload_file',)
+    

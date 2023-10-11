@@ -18,7 +18,6 @@ import os, shutil
 import re
 import time
 from datetime import datetime
-from django.utils.safestring import mark_safe
 
 import openai
 import tiktoken
@@ -46,7 +45,6 @@ class WorkerОpenAI_SOP():
     self.model = mod
     self.em_framework = em_framework
     self.debug_log = []
-    
     self.persist_directory = self.sys_dir + 'sop/embedding/' + company_dir
     self.system_directory = self.sys_dir + 'sop/sys/' + company_dir
     self.system_doc_file = system_file
@@ -63,8 +61,7 @@ class WorkerОpenAI_SOP():
         os.mkdir(self.web_directory)
     
         
-    self.chat_manager_system = self.get_text_from(self.system_directory, self.system_doc_file)
-    
+    self.chat_manager_system = self.load_file(self.system_directory, self.system_doc_file)  
     if em_framework == 'chroma':
         self.persist_directory = self.persist_directory + 'chroma/'
         if not os.path.exists(self.persist_directory):
@@ -72,12 +69,12 @@ class WorkerОpenAI_SOP():
         # Если База данных embedding уже создана ранее
         if os.path.exists(self.persist_directory + 'embedding_info.inf'):
             print("We use a ready-made database. Path: ", self.persist_directory)
-            self.debug_log.append("\n We use a ready-made database. Path: " + self.persist_directory)
+            self.debug_log.append("We use a ready-made database. Path: " + self.persist_directory)
             self.db = Chroma(persist_directory=self.persist_directory,
                                 embedding_function=OpenAIEmbeddings())
         else:
             print("Embeddings database not found!")
-            self.debug_log.append("\n Embeddings database not found!")
+            self.debug_log.append("Embeddings database not found!")
             self.db = Chroma(persist_directory=self.persist_directory, embedding_function=OpenAIEmbeddings())
 
     if em_framework == 'faiss':
@@ -124,28 +121,23 @@ class WorkerОpenAI_SOP():
                 os.remove(path)
                 
   def get_text_from(self, doc_dir, file_):
-    document_txt = ""
-    if file_:
-        with open(doc_dir + file_, "r") as f:                
-            self.debug_log.append("File is loading:" + file_)
-            buf = file_.split('.')
-            if buf[-1] in ['doc', 'docx'] :
-                # Load DOC/DOCX document
-                
-                try:
-                    doc = docx.Document(doc_dir + file_)
-                    for docpara in doc.paragraphs:
-                        document_txt += docpara.text + '\n'
-                except Exception as e:
-                    self.debug_log.append(f"Error processing file {file_}: {str(e)}")
-                    
-            elif buf[-1] == 'txt':
-                try:
-                    document_txt = self.load_document_text(doc_dir + file_)                
-                    self.debug_log.append("File is loading:" + doc_dir + file_)
-                except Exception as e:
-                    self.debug_log.append(f"Error processing file {file_}: {str(e)}")
-            
+  
+    with open(doc_dir + file_, "r") as f:                
+        self.debug_log.append("File is loading:" + file_)
+        buf = file_.split('.')
+        if buf[-1] in ['doc', 'docx'] :
+            # Load DOC/DOCX document
+            document_txt = ""
+            try:
+                doc = docx.Document(self.data_directory + file_)
+                for docpara in doc.paragraphs:
+                    document_txt += docpara.text + '\n'
+            except Exception as e:
+                self.debug_log.append(f"Error processing file {file_}: {str(e)}")
+                #print(document_txt)
+        elif buf[-1] == 'txt':
+            # This is a long document we can split up.
+            document_txt = self.load_document_text(self.data_directory + file_)
             
     return document_txt
 
@@ -157,43 +149,35 @@ class WorkerОpenAI_SOP():
       
       
     
-  def create_embedding(self, doc_dir="", un_list = []):
+  def create_embedding(self, doc_dir=""):
     if self.em_framework == 'chroma':
-        used_list = self.create_embedding_chroma(doc_dir= doc_dir, un_list = un_list)
+        self.create_embedding_chroma(doc_dir= doc_dir)
     elif self.em_framework == 'faiss':    
-        used_list = self.create_embedding_faiss(doc_dir= doc_dir, unlist = un_list)
+        self.create_embedding_faiss(doc_dir= doc_dir)
         
-    return used_list
-        
-  def create_embedding_chroma(self, doc_dir="", un_list = []):
-        
+  def create_embedding_chroma(self, doc_dir=""):
+    
+
     self.source_chunks = []
-    buf_chunks = []
+    self.buf_chunks = []
     splitter = RecursiveCharacterTextSplitter(["<Chunk>", '\n\n', '\n', ' '], chunk_size=1024, chunk_overlap=0)
-    print(f'Unused list: {un_list}')
-    used_list = []
-    if self.__embedding_new :
-        print('Creating new embeddings!')
-        
-        self.del_all_in_dir(self.persist_directory)
-        self.debug_log.append('\n Previouse embeddings deleted!')
-        self.db = Chroma(persist_directory=self.persist_directory, embedding_function=OpenAIEmbeddings())
-    else:        
-        print('Adding embeddings!')
-   
+
+    
+    #print('Files: ', os.listdir(doc_dir))
+
+    #print("File is loading: ", doc_dir)
+    #print(f'Chroma dir: {persist_directory}')
     
     # проходимся по всем данным
     count_em_token = 0 # all tokens gones thrue embeddings
     f_info = open(self.persist_directory + 'embedding_info.inf', 'w')
     f_info.write('Used files: \n')
     for file_ in sorted(self.file_list(doc_dir)): #go thrue all files in doc_dir
-        #if not self.__embedding_new:
-        if file_ not in un_list:
-            continue
-            
+        
+        
         print("Загружается файл: ", file_)
         
-        self.debug_log.append("\n File is loading:" + doc_dir)
+        self.debug_log.append("File is loading:" + doc_dir)
         # разбиваем на несколько частей с помощью метода split_text
         if (os.path.isfile(doc_dir + file_)):
             
@@ -201,51 +185,49 @@ class WorkerОpenAI_SOP():
                 document_txt = self.get_text_from(doc_dir, file_) #get text from current file
                 f_info.write(str(file_) + '\n')
             except Exception as e:
-                self.debug_log.append(f"\n Error processing file {file_}: {str(e)}") 
+                self.debug_log.append(f"Error processing file {file_}: {str(e)}") 
                 
             count_token = 0 #counter for OpenAI (tokens limit 140K per minute )    
             for chunk in splitter.split_text(document_txt):
                 #print('Длина символов =  ', len(chunk))
 
                 count_token += self.num_tokens_from_string(chunk, "cl100k_base")
-                
                 if count_token > 140000:
                    
-                    #print('bCount: ', count_token, ' Tokens:  ', self.num_tokens_from_string(' '.join([x.page_content for x in buf_chunks]), "cl100k_base"))
+                    #print('Count: ', count_token, ' Tokens:  ', num_tokens_from_string(' '.join([x.page_content for x in self.buf_chunks]), "cl100k_base"))
                   
                     count_token = 0
-                    self.source_chunks.append(copy.deepcopy(buf_chunks))
+                    self.source_chunks.append(copy.deepcopy(self.buf_chunks))
                    
-                    #print('bSize: ', len(buf_chunks), '\n')
-                    buf_chunks.clear()
+                    #print('Size: ', len(self.buf_chunks), '\n')
+                    self.buf_chunks.clear()
                    
-                    buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
+                    self.buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
                 else:
-                    buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
+                    self.buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
+                        
+            self.source_chunks.append(copy.deepcopy(self.buf_chunks))
+                
+            if self.__embedding_new :
+                print('Creating new embeddings!')
+                self.del_all_in_dir(self.persist_directory)
+                self.debug_log.append('Previouse embeddings deleted!')
+                self.db = Chroma(persist_directory=self.persist_directory, embedding_function=OpenAIEmbeddings())
                     
-            #print('Count: ', count_token, ' Tokens:  ', self.num_tokens_from_string(' '.join([x.page_content for x in buf_chunks]), "cl100k_base"))        
-            #print('Size: ', len(buf_chunks), '\n')            
-            self.source_chunks.append(copy.deepcopy(buf_chunks))
-            buf_chunks.clear()
-                
-            count_token = 0       
+            else:
+                print('Adding embeddings!')
+                   
             for i in range(len(self.source_chunks)):
-                n_buf = self.num_tokens_from_string(' '.join([x.page_content for x in self.source_chunks[i]]), "cl100k_base")
-                count_token += n_buf
-                if count_token > 140000:
-                    count_token = n_buf
-                    #print('\n PAUSE \n')
-                    time.sleep(77)
                 self.db.add_documents(documents=self.source_chunks[i])
-                #print('sSize: ', len(self.source_chunks[i]))
-                self.debug_log.append('\n sSize: ' + str(len(self.source_chunks[i])))
-                count_em_token += n_buf                
-                #print(f'Curr 140K chunk: {i} Counter: Global- {count_em_token} Curr file- {n_buf} ')
-                self.debug_log.append(f'Block of current file: {i} Token counter: Global- {count_em_token} Current block- {n_buf} ')
-                
+                print('sSize: ', len(self.source_chunks[i]))
+                self.debug_log.append('sSize: ' + str(len(self.source_chunks[i])))
+                count_token = self.num_tokens_from_string(' '.join([x.page_content for x in self.source_chunks[i]]), "cl100k_base")
+                count_em_token += count_token
+                print(f'Curr 140K chunk: {i} Counter: Global- {count_em_token} Curr file- {count_token} ')
+                self.debug_log.append(str(i) + 'Counter: ' + str(count_token))
+                time.sleep(77)
                   
             self.db.persist()
-            used_list.append(file_)
             self.source_chunks.clear()
                 
     #print('Count: ', count_token, ' Tokens:  ', num_tokens_from_string(' '.join([x.page_content for x in buf_chunks]), "cl100k_base"))
@@ -266,13 +248,7 @@ class WorkerОpenAI_SOP():
     self.debug_log.append('\n Number of tokens in source document: ' + str(count_em_token))
     self.debug_log.append('\n Request price: ' + str(0.0004*(count_em_token/1000)) + ' $')
     self.debug_log.append('\n =========================================== \n')
-   
-    return used_list
 
-  def create_embedding_faiss(self, doc_dir="", u_list = []):
-        
-    self.source_chunks = []
-    self.buf_chunks = []
 
   def insert_newlines(self, text: str, max_len: int = 170) -> str:
       words = text.split()

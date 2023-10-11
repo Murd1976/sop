@@ -1,0 +1,69 @@
+{% extends "sop/sop_data_tools.html" %}
+{% load wiki_tags i18n sekizai_tags static %}
+
+{% block extra_styles %}
+{% endblock %}
+
+{% block title %} Create embeddings {% endblock %}
+
+{% block wiki_contents %}
+
+<!-- Вывод сообщений -->
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+            <div class="message-success">{{ message }}</div>
+        {% elif message.tags == "error" %}
+            <div class="message-error">{{ message }}</div>
+        {% else %}
+            <div>{{ message }}</div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<h2> Load data base </h2>
+<div class="conteiner-fluid mb-2 border">
+<form name="Load data base" method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row mb-2">
+    
+	<div class="col">
+		{{ form.as_p }}
+		<button type="submit">Загрузить</button>
+	</div>
+	
+	<div class="col ">
+			<div class="row">&nbsp </div>
+		<div class="row mr-2" >	
+			<h4> Data archive</h4>			
+		</div>	
+		<div class="row mr-2" >
+
+			<table border="1" colspan="3" width="100%" id="record-table">
+				
+				<tr>
+					<th width="80%" >File name </th>
+					<th width="15%" align="center">Owner </th>
+					<th width="5%"align="center">Delete</th>
+				</tr>
+				{% for record in data_list %}
+				<tr class="record-row" data-id="{{ record.id }}">
+					<td>{{record.upload_file}}</td>
+					<td align="center">{{record.upload_file_owner }}</td>
+			  
+					<td align="center"><a href="{% url 'ai_sop:my_del_data' file_id=record.id %}" title="{% trans "Delete file" %}" >
+					<span class="fa fa-trash-alt"></span>
+					</a></td>
+				</tr>
+				{% endfor %}  
+			</table>
+		</div>	
+		</div>
+		
+  </div>
+
+
+</form>
+</div>
+
+{% endblock %}

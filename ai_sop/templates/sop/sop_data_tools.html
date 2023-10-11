@@ -1,6 +1,11 @@
 {% extends "wiki/base.html" %}
 {% load wiki_tags i18n sekizai_tags static %}
+{% load my_filters %}
 
+{% block extra_styles %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'ai_sop/css/styles.css' %}">
+{% endblock %}
 
 {% block wiki_pagetitle %}{% trans "Data tools" %}{% endblock %}
 
@@ -9,24 +14,24 @@
 
   <div class="btn-group" style="margin-left: 10px;">
     <button class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#" style="padding: 7px;" type="button"
-            title="{% trans "Sub-articles for" %} {{ my_text }}"
+            title="{% trans "Update embeddings base" %}"
             aria-haspopup="true" aria-expanded="false">
       <span class="fa fa-sitemap">Create embeddings</span>
       <span class="caret"></span>
     </button>
 	
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-       <a class="dropdown-item" href="{%url 'ai_sop:my_sop_chat_embedding' %}">  <em> Chat embeddings </em> </a>
+       <a class="dropdown-item" href="{%url 'ai_sop:my_sop_embedding' em_type='chat' %}">  <em> Chat embeddings </em> </a>
        <div class="dropdown-divider"></div> 
-       <a class="dropdown-item" href="{%url 'ai_sop:my_sop_prop_embedding' %}">  <em> Prop embeddings </em> </a>     
+       <a class="dropdown-item" href="{%url 'ai_sop:my_sop_embedding' em_type='prop' %}">  <em> Prop embeddings </em> </a>     
       
     </div>
   </div>
-  
+  <!--
   <div class="btn-group" style="margin-left: 10px;">
 	<a href="#"	>
     <button class="btn btn-info " style="padding: 7px;" type="button"
-            title="{% trans "Sub-articles for" %} {{ my_text }}"
+            title="{% trans "Load base file" %}"
             aria-haspopup="true" aria-expanded="false">
       <span class="fa fa-sitemap"> Load base </span>
       <span class="caret"></span>
@@ -37,9 +42,20 @@
   <div class="btn-group" style="margin-left: 10px;">
 	<a href="#"	>
     <button class="btn btn-info " style="padding: 7px;" type="button"
-            title="{% trans "Sub-articles for" %} {{ my_text }}"
+            title="{% trans "Load web data" %}"
             aria-haspopup="true" aria-expanded="false">
       <span class="fa fa-sitemap"> Load WEB </span>
+      <span class="caret"></span>
+    </button>
+	</a>
+  </div>
+  -->
+  <div class="btn-group" style="margin-left: 10px;">
+	<a href="{%url 'ai_sop:my_upload_file' %}"	>
+    <button class="btn btn-info " style="padding: 7px;" type="button"
+            title="{% trans "Upload data" %} {{ my_text }}"
+            aria-haspopup="true" aria-expanded="false">
+      <span class="fa fa-sitemap"> Upload data </span>
       <span class="caret"></span>
     </button>
 	</a>
@@ -49,6 +65,136 @@
 {% endblock %}
 
 {% block wiki_contents %}
+<!-- Вывод сообщений --
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+            <div class="message-success">{{ message }}</div>
+        {% elif message.tags == "error" %}
+            <div class="message-error">{{ message }}</div>
+        {% else %}
+            <div>{{ message }}</div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+-->
+<div class="row">&nbsp </div>
+<div class="conteiner-fluid border">
+	<div class="row ml-2">
+    
+		<div class="col">
+			{% block tool_page %}
+			{% endblock %}
+		</div>	
 
+		<div class="col ">
+			{% block data_tadle %}
+			
+			<div class="row mr-2 mt-2" >	
+				<h4> Data archive</h4>			
+			</div>	
+			<div class="row  mr-2" >
+				<label style="color: green;"> <input type="checkbox" id="select-all-checkbox" style="margin-right: 8px;"> Select all </label>
+				<a class="ml-auto" id="bulk-delete-link" href="#">Delete selected</a>
+			</div>
+			<div class="row mr-2 mb-2" >
+				<table border="1" colspan="3" width="100%" id="record-table">
+					
+					<tr>
+						<th width="70%" >File name </th>
+						{% if em_type == "chat" %}
+							
+							<th width="10%"align="center">Used in chat</th>
+						{% elif em_type == "prop" %}
+							<th width="10%"align="center">Used in prop</th>
+						{% endif %}
+						<th width="15%" align="center">Added by </th>
+						<th width="5%"align="center">Delete</th>
+					</tr>
+					{% for record in data_list %}
+					<tr class="record-row" data-id="{{ record.id }}">
+						<td>{{record.upload_file.name|filename}}</td>
+						{% if em_type == "chat" %}
+							{% if record.is_used_chat %}
+								<td align="center">Yes</td>
+							{% else %}
+								<td align="center">No</td>
+							{% endif %}	
+						{% elif em_type == "prop" %}
+							{% if record.is_used_prop %}
+								<td align="center">Yes</td>
+							{% else %}
+								<td align="center">No</td>
+							{% endif %}
+						{% endif %}
+						
+						<td align="center">{{record.upload_file_owner }}</td>
+				  
+						<td align="center"><a href="{% url 'ai_sop:my_del_data' %}?ids={{ record.id }}" title="{% trans "Delete file" %}" >
+						<span class="fa fa-trash-alt"></span>
+						</a></td>
+					</tr>
+					{% endfor %}  
+				</table>
+			</div>	
+			
+			
+			{% addtoblock "js" %}
+			<script>
+			let selectedRows = new Set();
+			document.addEventListener('DOMContentLoaded', function() {
+				
+
+				// Выделение или снятие выделения строки при клике
+				const rows = document.querySelectorAll('.record-row');
+				for(let row of rows) {
+					row.addEventListener('click', function() {
+						if(selectedRows.has(row.dataset.id)) {
+							selectedRows.delete(row.dataset.id);
+							row.style.backgroundColor = "";  // Снимаем выделение
+						} else {
+							selectedRows.add(row.dataset.id);
+							row.style.backgroundColor = "lightblue";  // Выделяем строку
+						}
+					});
+				}
+
+				// Обновление ссылки при клике на неё
+				document.getElementById('bulk-delete-link').addEventListener('click', function(event) {
+					if(selectedRows.size > 0) {
+						const idsToDelete = Array.from(selectedRows).join(',');
+						const deleteUrl = `{% url 'ai_sop:my_del_data' %}?ids=${idsToDelete}`;
+						this.href = deleteUrl;
+					} else {
+						alert('Выберите строки для удаления.');
+						event.preventDefault();  // предотвращаем переход по ссылке
+					}
+				});
+				
+				document.getElementById('select-all-checkbox').addEventListener('change', function() {
+					const allRows = document.querySelectorAll('.record-row');
+					if(this.checked) {
+						// Выделяем все строки, если чекбокс отмечен
+						for(let row of allRows) {
+							selectedRows.add(row.dataset.id);
+							row.style.backgroundColor = "lightblue";
+						}
+					} else {
+						// Снимаем выделение со всех строк, если чекбокс не отмечен
+						for(let row of allRows) {
+							selectedRows.delete(row.dataset.id);
+							row.style.backgroundColor = "";
+						}
+					}
+				});
+			});
+			
+			
+			</script>
+			{% endaddtoblock %}
+			{% endblock %}
+		</div>
+	</div>
+</div>
 
 {% endblock %}

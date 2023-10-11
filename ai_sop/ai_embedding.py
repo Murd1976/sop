@@ -20,10 +20,9 @@ from datetime import datetime
 import pathlib
 import subprocess
 import tempfile
-#import ipywidgets as widgets
-import os
-#import gspread
-#from oauth2client.service_account import ServiceAccountCredentials
+
+import os, shutil
+
 import re
 import logging
 logging.getLogger("langchain.text_splitter").setLevel(logging.ERROR) # игнорирование предупреждений
@@ -61,47 +60,55 @@ class WorkerОpenAIChat():
   # путь к учебным материалам Chat
   data_directory = ''
   db_chat_file = ""
+  system_directory = ''
   system_doc_file = 'support_instruction.txt'
   web_directory = ''
+  
+  __embedding_new =  False
 
-  def __init__(self, system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
     #global question_history
     self.question_history = []
     self.model = mod
     self.debug_log = []
+    self.em_framework = em_framework
     
     self.persist_directory = self.sys_dir + 'chat/embedding/' + company_dir
-    self.system_doc = self.sys_dir + 'chat/sys/' + company_dir
+    self.system_directory = self.sys_dir + 'chat/sys/' + company_dir
     self.system_doc_file = system_file
-    self.data_directory = self.sys_dir + 'chat/data/' + company_dir
+    self.data_directory = self.sys_dir + 'data/' + company_dir
     self.web_directory = self.sys_dir + 'chat/web/' + company_dir
     
     if not os.path.exists(self.persist_directory):
         os.mkdir(self.persist_directory)
-    if not os.path.exists(self.system_doc):
-        os.mkdir(self.system_doc)
+    if not os.path.exists(self.system_directory):
+        os.mkdir(self.system_directory)
     if not os.path.exists(self.data_directory):
         os.mkdir(self.data_directory)
     if not os.path.exists(self.web_directory):
         os.mkdir(self.web_directory)
-    '''
-    if chat_manager_system:
-      self.chat_manager_system = self.load_document_text(chat_manager_system)
-    else:
-      self.chat_manager_system = " "
-    '''
-    try:
-      self.chat_manager_system = self.load_document_text(self.system_doc + self.system_doc_file)
-    except:
-      self.chat_manager_system = " "
+    
+    self.chat_manager_system = self.get_text_from(self.system_directory, self.system_doc_file)
+    
+    if em_framework == 'chroma':
+        self.persist_directory = self.persist_directory + 'chroma/'
+        if not os.path.exists(self.persist_directory):
+            os.mkdir(self.persist_directory)
+        # Если База данных embedding уже создана ранее
+        if os.path.exists(self.persist_directory + 'embedding_info.inf'):
+            print("We use a ready-made database. Path: ", self.persist_directory)
+            self.debug_log.append("\n We use a ready-made database. Path: " + self.persist_directory)
+            self.db = Chroma(persist_directory=self.persist_directory,
+                                embedding_function=OpenAIEmbeddings())
+        else:
+            print("Embeddings database not found!")
+            self.debug_log.append("\n Embeddings database not found!")
+            self.db = Chroma(persist_directory=self.persist_directory, embedding_function=OpenAIEmbeddings())
 
-    # Если База данных embedding уже создана ранее
-    if os.path.exists(self.persist_directory + 'embedding_info.inf'):
-      #print("We use a ready-made database. Path: ", self.persist_directory)
-      self.debug_log.append("We use a ready-made database. Path: " + self.persist_directory)
-      self.search_index = Chroma(persist_directory=self.persist_directory,
-                            embedding_function=OpenAIEmbeddings())
-     
+    if em_framework == 'faiss':
+        self.persist_directory = self.persist_directory + 'faiss/'
+        # Load index from disk
+        self.db = FAISS.load_local(self.persist_directory + 'faiss_index') 
 
   # def get_key(self):
   #   openai.api_key = getpass.getpass(prompt='Введите секретный ключ для сервиса chatGPT: ')
@@ -127,117 +134,189 @@ class WorkerОpenAIChat():
       login_button.on_click(on_button_clicked)
       display(widgets.VBox([password_input, login_button, output]))
 
+  @property  
+  def em_mode(self):
+    return self.__embedding_new
+  
+  @em_mode.setter  
+  def em_mode(self, mode):
+    if mode == '1':
+        self.__embedding_new = False
+    else:
+        self.__embedding_new = True
+
   def load_document_text(self, url: str) -> str:
       with open(url, "r") as f:
         text = f.read()
 
       return text
+      
+  def file_list(self, f_path):
+                
+    f_list = os.listdir(f_path)
+    f_list = [ff for ff in f_list if (os.path.isfile(f_path + ff) and ('~' not in ff))]
+        
+    return f_list
 
-  def create_embedding(self, doc_dir="", persist_directory=""):
-    def num_tokens_from_string(string: str, encoding_name: str) -> int:
+  def del_all_in_dir(self, dir_path):
+    if os.path.exists(dir_path):
+        for files in os.listdir(dir_path):
+            path = os.path.join(dir_path, files)
+            try:
+                shutil.rmtree(path)
+            except OSError:
+                os.remove(path)
+                
+  def get_text_from(self, doc_dir, file_):
+    document_txt = ""
+    if file_:
+        with open(doc_dir + file_, "r") as f:                
+            self.debug_log.append("File is loading:" + file_)
+            buf = file_.split('.')
+            if buf[-1] in ['doc', 'docx'] :
+                # Load DOC/DOCX document
+                
+                try:
+                    doc = docx.Document(doc_dir + file_)
+                    for docpara in doc.paragraphs:
+                        document_txt += docpara.text + '\n'
+                except Exception as e:
+                    self.debug_log.append(f"Error processing file {file_}: {str(e)}")
+                    
+            elif buf[-1] == 'txt':
+                try:
+                    document_txt = self.load_document_text(doc_dir + file_)                
+                    self.debug_log.append("File is loading:" + doc_dir + file_)
+                except Exception as e:
+                    self.debug_log.append(f"Error processing file {file_}: {str(e)}")
+            
+            
+    return document_txt
+
+  def num_tokens_from_string(self, string: str, encoding_name: str) -> int:
       """Returns the number of tokens in a text string."""
       encoding = tiktoken.get_encoding(encoding_name)
       num_tokens = len(encoding.encode(string))
       return num_tokens
-
-    self.source_chunks = []
-    self.buf_chunks = []
-    splitter = RecursiveCharacterTextSplitter(["<Chunk>", '\n\n', '\n', ' '], chunk_size=1024, chunk_overlap=0)
-
+      
+      
     
-    #print('Files: ', os.listdir(doc_dir))
-
-    #print("File is loading: ", doc_dir)
-    self.debug_log.append("File is loading:" + doc_dir)
+  def create_embedding(self, doc_dir="", un_list = []):
+    if self.em_framework == 'chroma':
+        used_list = self.create_embedding_chroma(doc_dir= doc_dir, un_list = un_list)
+    elif self.em_framework == 'faiss':    
+        used_list = self.create_embedding_faiss(doc_dir= doc_dir, unlist = un_list)
+        
+    return used_list
+        
+  def create_embedding_chroma(self, doc_dir="", un_list = []):
+        
+    self.source_chunks = []
+    buf_chunks = []
+    splitter = RecursiveCharacterTextSplitter(["<Chunk>", '\n\n', '\n', ' '], chunk_size=1024, chunk_overlap=0)
+    print(f'Unused list: {un_list}')
+    used_list = []
+    if self.__embedding_new :
+        print('Creating new embeddings!')
+        
+        self.del_all_in_dir(self.persist_directory)
+        self.debug_log.append('\n Previouse embeddings deleted!')
+        self.db = Chroma(persist_directory=self.persist_directory, embedding_function=OpenAIEmbeddings())
+    else:        
+        print('Adding embeddings!')
+   
+    
     # проходимся по всем данным
-    count_token = 0
-    f_info = open(persist_directory + 'embedding_info.inf', 'w')
-    f_info.write('Used files:')
-    for file_ in sorted(os.listdir(doc_dir)):
+    count_em_token = 0 # all tokens gones thrue embeddings
+    f_info = open(self.persist_directory + 'embedding_info.inf', 'w')
+    f_info.write('Used files: \n')
+    for file_ in sorted(self.file_list(doc_dir)): #go thrue all files in doc_dir
+        #if not self.__embedding_new:
+        if file_ not in un_list:
+            continue
+            
         print("Загружается файл: ", file_)
         
-        self.debug_log.append("File is loading:" + doc_dir)
+        self.debug_log.append("\n File is loading:" + doc_dir)
         # разбиваем на несколько частей с помощью метода split_text
         if (os.path.isfile(doc_dir + file_)):
-            with open(doc_dir + file_, "r") as f:
-                f_info.write(str(file_))
-                self.debug_log.append("File is loading:" + file_)
-                buf = file_.split('.')
-                if buf[-1] in ['doc', 'docx'] :
-                    # Load DOC/DOCX document
-                    document_txt = ""
-                    doc = docx.Document(self.data_directory + file_)
-                    for docpara in doc.paragraphs:
-                        document_txt += docpara.text + '\n'
-                    #print(document_txt)
+            
+            try:
+                document_txt = self.get_text_from(doc_dir, file_) #get text from current file
+                f_info.write(str(file_) + '\n')
+            except Exception as e:
+                self.debug_log.append(f"\n Error processing file {file_}: {str(e)}") 
+                
+            count_token = 0 #counter for OpenAI (tokens limit 140K per minute )    
+            for chunk in splitter.split_text(document_txt):
+                #print('Длина символов =  ', len(chunk))
+
+                count_token += self.num_tokens_from_string(chunk, "cl100k_base")
+                
+                if count_token > 140000:
+                   
+                    #print('bCount: ', count_token, ' Tokens:  ', self.num_tokens_from_string(' '.join([x.page_content for x in buf_chunks]), "cl100k_base"))
+                  
+                    count_token = 0
+                    self.source_chunks.append(copy.deepcopy(buf_chunks))
+                   
+                    #print('bSize: ', len(buf_chunks), '\n')
+                    buf_chunks.clear()
+                   
+                    buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
                 else:
-                    # This is a long document we can split up.
-                    document_txt = self.load_document_text(self.data_directory + file_)
+                    buf_chunks.append(Document(page_content=chunk, metadata={'source': file_}))
                     
-                for chunk in splitter.split_text(document_txt):
-                  #print('Длина символов =  ', len(chunk))
-
-                    count_token += num_tokens_from_string(chunk, "cl100k_base")
-                    if count_token > 140000:
-                   
-                    #print('Count: ', count_token, ' Tokens:  ', num_tokens_from_string(' '.join([x.page_content for x in self.buf_chunks]), "cl100k_base"))
-                    
-                        count_token = 0
-                        self.source_chunks.append(copy.deepcopy(self.buf_chunks))
-                   
-                    #print('Size: ', len(self.buf_chunks), '\n')
-                        self.buf_chunks.clear()
-                    
-                        self.buf_chunks.append(Document(page_content=chunk, metadata={'source': doc_dir}))
-                    else:
-                        self.buf_chunks.append(Document(page_content=chunk, metadata={'source': doc_dir}))
-
-    self.source_chunks.append(copy.deepcopy(self.buf_chunks))
-
-    self.search_index = Chroma(persist_directory=persist_directory, embedding_function=OpenAIEmbeddings())
+            #print('Count: ', count_token, ' Tokens:  ', self.num_tokens_from_string(' '.join([x.page_content for x in buf_chunks]), "cl100k_base"))        
+            #print('Size: ', len(buf_chunks), '\n')            
+            self.source_chunks.append(copy.deepcopy(buf_chunks))
+            buf_chunks.clear()
+                
+            count_token = 0       
+            for i in range(len(self.source_chunks)):
+                n_buf = self.num_tokens_from_string(' '.join([x.page_content for x in self.source_chunks[i]]), "cl100k_base")
+                count_token += n_buf
+                if count_token > 140000:
+                    count_token = n_buf
+                    #print('\n PAUSE \n')
+                    time.sleep(77)
+                self.db.add_documents(documents=self.source_chunks[i])
+                #print('sSize: ', len(self.source_chunks[i]))
+                self.debug_log.append('\n sSize: ' + str(len(self.source_chunks[i])))
+                count_em_token += n_buf                
+                #print(f'Curr 140K chunk: {i} Counter: Global- {count_em_token} Curr file- {n_buf} ')
+                self.debug_log.append(f'Block of current file: {i} Token counter: Global- {count_em_token} Current block- {n_buf} ')
+                
+                  
+            self.db.persist()
+            used_list.append(file_)
+            self.source_chunks.clear()
+                
     #print('Count: ', count_token, ' Tokens:  ', num_tokens_from_string(' '.join([x.page_content for x in buf_chunks]), "cl100k_base"))
     #print('Size: ', len(buf_chunks), '\n')
-    count_token = 0
+    
     #print('G_Size: ', self.source_chunks[0])
     #print('G_Size: ', self.source_chunks[1])
     #print('G_Size: ', self.source_chunks[2])
-    for i in range(len(self.source_chunks)):
-      self.search_index.add_documents(documents=self.source_chunks[i])
-      print('sSize: ', len(self.source_chunks[i]))
-      self.debug_log.append('sSize: ' + str(len(self.source_chunks[i])))
-      count_token += num_tokens_from_string(' '.join([x.page_content for x in self.source_chunks[i]]), "cl100k_base")
-      print(i, 'Counter: ', count_token)
-      self.debug_log.append(str(i) + 'Counter: ' + str(count_token))
-      time.sleep(77)
-    self.search_index.persist()
+       
+    f_info.close()
     
-    f = open(persist_directory + 'embedding_info.inf', 'w')
-    f.write(str(datetime.now()))
-    f.close()
-    
-    print('\n ===========================================: \n')
-    print('Number of tokens in source document: ', count_token)
-    print('Request price: ', 0.0004*(count_token/1000), ' $ \n')
+    print('\n ===========================================:')
+    print('\n Number of tokens in source document: ', count_em_token)
+    print('\n Request price: ', 0.0004*(count_em_token/1000), ' $')
     print('\n ===========================================')
     
-    self.debug_log.append('\n ===========================================: \n')
-    self.debug_log.append('Number of tokens in source document: ' + str(count_token) + '\n')
-    self.debug_log.append('Request price: ' + str(0.0004*(count_token/1000)) + ' $ \n')
+    self.debug_log.append('\n ===========================================: ')
+    self.debug_log.append('\n Number of tokens in source document: ' + str(count_em_token))
+    self.debug_log.append('\n Request price: ' + str(round(0.0004*(count_em_token/1000), 5)) + ' $')
     self.debug_log.append('\n =========================================== \n')
+   
+    return used_list
 
-    '''
-    # Создание индексов документа и СОХРАНЕНИЕ
-    self.search_index = Chroma.add_documents .from_documents(self.source_chunks,
-                                              OpenAIEmbeddings(),
-                                              persist_directory = persist_directory)
-    # We should call persist() to ensure the embeddings are written to disk.
-    self.search_index.persist()
-    
-    count_token = num_tokens_from_string(' '.join([x.page_content for x in self.source_chunks]), "cl100k_base")
-    print('\n ===========================================: ')
-    print('Количество токенов в документе :', count_token)
-    print('ЦЕНА запроса:', 0.0004*(count_token/1000), ' $ \n')
-    '''
+  def create_embedding_faiss(self, doc_dir="", u_list = []):
+        
+    self.source_chunks = []
+    self.buf_chunks = []
 
   def answer(self, system, topic, temp = 1):
       messages = [
