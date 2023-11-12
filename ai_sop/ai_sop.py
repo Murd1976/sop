@@ -42,8 +42,8 @@ class WorkerОpenAI_SOP():
   system_doc_web_prop = 'html_proposal_instruction.txt'
   __embedding_new =  False
 
-  #def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
-  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-4-vision-preview'):
+  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  #def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-4-vision-preview'):
     self.model = mod
     self.em_framework = em_framework
     self.debug_log = []
@@ -288,13 +288,13 @@ class WorkerОpenAI_SOP():
       return "\n".join(lines)
       
   # пример подсчета токенов
-  def num_tokens_from_messages(self, messages):
+  def num_tokens_from_messages(self, messages, model="gpt-3.5-turbo-0301"):
       """Returns the number of tokens used by a list of messages."""
       try:
-          encoding = tiktoken.encoding_for_model(self.model)
+          encoding = tiktoken.encoding_for_model(model)
       except KeyError:
           encoding = tiktoken.get_encoding("cl100k_base")
-      if self.model == "gpt-3.5-turbo-0301":  # note: future models may deviate from this
+      if model == "gpt-3.5-turbo-0301":  # note: future models may deviate from this
           num_tokens = 0
           for message in messages:
               num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
@@ -654,9 +654,10 @@ class WorkerОpenAI_SOP():
         self.debug_log.append('\n No embedding data! \n')
         
     if verbose:
-        print('message_content :\n ======================================== \n' + message_content)
+        print('message_content :\n ++++++========================================+++++ \n' + message_content)
 
     sys_template = self.chat_manager_system
+    #print(f'Sys_template {sys_template}')
     
     messages = [
       {"role": "system", "content": sys_template},

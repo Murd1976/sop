@@ -66,8 +66,8 @@ class WorkerОpenAIChat():
   
   __embedding_new =  False
 
-  #def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
-  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-4-vision-preview'):
+  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  #def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-4-vision-preview'):
     #global question_history
     self.question_history = []
     self.model = mod
@@ -333,40 +333,45 @@ class WorkerОpenAIChat():
 
       return completion.choices[0].message.content
 
-  def num_tokens_from_messages(self, messages):
-      """
-      Возвращает количество токенов, используемых списком сообщений.
-      """
-      try:
-          # Пытаемся получить кодировку для выбранной модели
-          encoding = tiktoken.encoding_for_model(self.model)
-      except KeyError:
-          # Если кодировка для выбранной модели не найдена, используем кодировку "cl100k_base"
-          encoding = tiktoken.get_encoding("cl100k_base")
-      # Если выбранная модель это "gpt-3.5-turbo-0301"
-      if self.model == "gpt-3.5-turbo-0301":
-          # Инициализируем счетчик токенов
-          num_tokens = 0
-          # Проходимся по каждому сообщению в списке сообщений
-          for message in messages:
-              # Каждое сообщение обрамляется токенами <im_start> и <im_end>, а также символами новой строки, всего 4 токена
-              num_tokens += 4
-              # Проходимся по каждому полю в сообщении (ключ и значение)
-              for key, value in message.items():
-                  # Считаем количество токенов в значении и добавляем их в счетчик токенов
-                  num_tokens += len(encoding.encode(value))
-                  # Если ключ это "name", то это означает что роль (role) опущена
-                  if key == "name":
-                      # Роль всегда требуется и всегда занимает 1 токен, так что вычитаем 1 из счетчика
-                      num_tokens += -1
-          # Каждый ответ начинается с токена <im_start>assistant, так что добавляем 2 в счетчик
-          num_tokens += 2
-          # Возвращаем количество токенов
-          return num_tokens
-      else:
-          # Если выбранная модель не поддерживается, генерируем исключение
-          raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {self.model}.
-  See https://github.com/openai/openai-python/blob/main/chatml.md for information on how messages are converted to tokens.""")
+  def num_tokens_from_messages(self, messages, model="gpt-3.5-turbo-0301"):
+    
+    """
+    Возвращает количество токенов, используемых списком сообщений.
+    """
+    
+    try:
+        # Пытаемся получить кодировку для выбранной модели
+        encoding = tiktoken.encoding_for_model(model)
+        #encoding = tiktoken.encoding_for_model("gpt-3.5-turbo-0301")
+    except KeyError:
+        # Если кодировка для выбранной модели не найдена, используем кодировку "cl100k_base"
+        encoding = tiktoken.get_encoding("cl100k_base")
+    # Если выбранная модель это "gpt-3.5-turbo-0301"
+    if model == "gpt-3.5-turbo-0301":
+        # Инициализируем счетчик токенов
+        num_tokens = 0
+        # Проходимся по каждому сообщению в списке сообщений
+        for message in messages:
+            # Каждое сообщение обрамляется токенами <im_start> и <im_end>, а также символами новой строки, всего 4 токена
+            num_tokens += 4
+            # Проходимся по каждому полю в сообщении (ключ и значение)
+            for key, value in message.items():
+                # Считаем количество токенов в значении и добавляем их в счетчик токенов
+                num_tokens += len(encoding.encode(value))
+                # Если ключ это "name", то это означает что роль (role) опущена
+                if key == "name":
+                    # Роль всегда требуется и всегда занимает 1 токен, так что вычитаем 1 из счетчика
+                    num_tokens += -1
+        # Каждый ответ начинается с токена <im_start>assistant, так что добавляем 2 в счетчик
+        num_tokens += 2
+        # Возвращаем количество токенов
+        return num_tokens
+    else:
+        # Если выбранная модель не поддерживается, генерируем исключение
+        raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {self.model}.
+          See https://github.com/openai/openai-python/blob/main/chatml.md for information on how messages are converted to tokens.""")
+    
+    
 
 
   def insert_newlines(self, text: str, max_len: int = 170) -> str:
@@ -461,22 +466,25 @@ class WorkerОpenAIChat():
       return answer  # возвращает ответ
 
   def num_tokens_from_history(self, messages, model="gpt-3.5-turbo-0301"):
-      """Returns the number of tokens used by a list of messages."""
-      try:
-          encoding = tiktoken.encoding_for_model(model)
-      except KeyError:
-          encoding = tiktoken.get_encoding("cl100k_base")
-      if model == "gpt-3.5-turbo-0301":  # note: future models may deviate from this
-          num_tokens = 0
-          for message in messages:
-              question, answer = message  # распаковываем кортеж
-              num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
-              num_tokens += len(encoding.encode(question))
-              num_tokens += len(encoding.encode(answer))
-          num_tokens += 2  # every reply is primed with <im_start>assistant
-          return num_tokens
-      else:
-          raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {model}.""")
+    """Returns the number of tokens used by a list of messages."""
+    
+    try:
+        encoding = tiktoken.encoding_for_model(model)
+    except KeyError:
+        encoding = tiktoken.get_encoding("cl100k_base")
+    if model == "gpt-3.5-turbo-0301":  # note: future models may deviate from this
+        num_tokens = 0
+        for message in messages:
+            question, answer = message  # распаковываем кортеж
+            num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
+            num_tokens += len(encoding.encode(question))
+            num_tokens += len(encoding.encode(answer))
+        num_tokens += 2  # every reply is primed with <im_start>assistant
+        return num_tokens
+    else:
+        raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {model}.""")
+        
+    
 
   def summarize_questions(self, dialog):
       # Применяем модель GPT-3 для суммаризации вопросов

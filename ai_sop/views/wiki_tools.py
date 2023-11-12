@@ -897,12 +897,12 @@ class AssistantView(ArticleMixin, TemplateView):
         query = f" FeedBack: {instruction} Article title: {orign_title}\n\n Article content: {orign_content}\n"
             
         try:
-            response = gptLearning.get_gpt_proposal(query, verbose = 1)
+            response = gptLearning.get_gpt_proposal(query, verbose = 0)
         except openai.OpenAIError as e:
             messages.error( self.request, _("OpenAI API Error: %s") % str(e), )
                    
         #print(type(response))
-        print(response)
+        #print(response)
         res_data = {}
         
         try:
@@ -924,12 +924,13 @@ class AssistantView(ArticleMixin, TemplateView):
             res_data["summary"] = ''
         # Отправка результатов на сайт
        # print(res_data["content"], '\n')
-       
+        '''
         print(type(res_data))
         print('=================================================================================')        
-        print(res_data["title"], '\n')
-        print(res_data["content"], '\n')
-        print(res_data["summary"])
+        print('Title', res_data["title"], '\n')
+        print('Content', res_data["content"], '\n')
+        print('Summary', res_data["summary"])
+        '''
         #import pdb; pdb.set_trace()
         return JsonResponse(res_data, safe=False)
         #return JsonResponse({'text': processed_text })
