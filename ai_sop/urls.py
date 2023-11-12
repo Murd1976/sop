@@ -21,6 +21,7 @@ urlpatterns = [
     
     re_path(r"^ai/assistant/(?P<article_id>[0-9]+)/$", wiki_tools.AssistantView.as_view(), name = 'my_sop_ai_assistant'),
     re_path(r"^ai/sop/(?P<article_id>[0-9]+)/$", wiki_tools.SopView.as_view(), name = 'my_sop_sop'),
+    re_path(r"^ai/faq/(?P<article_id>[0-9]+)/$", wiki_tools.FaqView.as_view(), name = 'my_sop_faq'),
     
     #path('chat/gpt/instruction/chat/', views.chat_instruction, name= 'my_chat_gpt_instruction'),
     #path('chat/gpt/instruction/prop/', views.prop_instruction, name= 'my_prop_gpt_instruction'),

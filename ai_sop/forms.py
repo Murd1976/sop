@@ -82,7 +82,7 @@ class AiCreateForm(forms.Form, wiki_forms.SpamProtectionMixin):
         self.request = request
         self.urlpath_parent = urlpath_parent
 
-    file_name = forms.ChoiceField(label="Select a file:", initial=0, required= True, choices=((0, "SOP Dry Herbs Vaporizer - V20211031.docx"), (1, "Template Messages - MagicVaporizers.docx"), (2, "FAQ _ Returns DryHerbs.docx")))
+    file_name = forms.ChoiceField(label="Select a file:", initial=0, required= True, choices=((0, "None")))
     
     title = forms.CharField(
         label=_("Title"),

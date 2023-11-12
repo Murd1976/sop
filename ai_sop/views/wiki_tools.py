@@ -144,7 +144,7 @@ def delete_chat(request, id):
         return render(request, template, context)
         
 
-    
+@login_required    
 def chat_page(request, id = 0):
     template = 'sop/sop_gpt_response.html'
         
@@ -465,7 +465,12 @@ def get_ai_content(f_name, mode = 'usal', instructions = ''):
         
     
     elif mode == 'faq':
-        prompt_template = ''
+        prompt_template = """Based on the data in [Context], you need to create a list of frequently asked questions with answers. 
+                        
+        {user_rules}
+                
+        Context: {context}
+        """
     elif mmode == 'html':
         prompt_template = """The text must be structured and converted into an HTML document.
     Headings of different levels, lists and links must be highlighted using HTML tags.
@@ -500,7 +505,24 @@ class Create_Article_Page(FormView, ArticleMixin):
         initial = kwargs.get("initial", {})
         initial["slug"] = self.request.GET.get("slug", None)
         kwargs["initial"] = initial
+                        
         form = form_class(self.request, self.urlpath, **kwargs)
+        
+        # Получение списка файлов
+        f_list = UploadedFile.objects.all()
+        # Преобразование списка файлов в список кортежей для поля выбора
+        file_choices = [(_f.id, str(_f.upload_file).split('/')[-1]) for _f in f_list]
+        # Добавление опции "None" в начало списка
+        file_choices.insert(0, (0, "None"))
+
+        # Установка списка файлов в качестве выбора для поля file_name
+        form.fields['file_name'] = forms.ChoiceField(
+            label="Select a file:", 
+            initial=0, 
+            required=True, 
+            choices=file_choices
+        )
+        
         form.fields["slug"].widget = wiki_forms.TextInputPrepend(
             prepend="/" + self.urlpath.path,
             attrs={
@@ -514,13 +536,28 @@ class Create_Article_Page(FormView, ArticleMixin):
                 else "Letters, numbers, hyphens and underscores",
             },
         )
+        
         #self.creation(form)
         return form
     
     def form_valid(self, form):
-        file_list = [(0, "SOP Dry Herbs Vaporizer - V20211031.docx"), (1, "Template Messages - MagicVaporizers.docx"), (2, "FAQ _ Returns DryHerbs.docx")]
+        #file_list = [(0, "SOP_Dry_Herbs_Vaporizer_-_V20211031.docx"), (1, "Template_Messages_-_ MagicVaporizers.docx"), (2, "FAQ___Returns_DryHerbs.docx")]
         
-        f_name = dict(file_list)[int(form.cleaned_data["file_name"])]
+        #f_name = dict(file_list)[int(form.cleaned_data["file_name"])]
+        # Получение ID выбранного файла
+        file_id = int(form.cleaned_data["file_name"])
+
+        # Если файл был выбран, получаем его имя, иначе оставляем f_name пустым
+        if file_id != 0:
+            f_name = str(UploadedFile.objects.get(id=file_id).upload_file.name).split('/')[-1]
+        else:
+            f_name = ''
+        if f_name == '':
+            messages.error(
+                    self.request, _("You should choise file.")
+                )
+            return redirect("wiki:get", "")
+        
         #handle_uploaded_file(request.FILES['file'])
         title = form.cleaned_data["title"]
         instructions = form.cleaned_data["instructions"]
@@ -528,8 +565,12 @@ class Create_Article_Page(FormView, ArticleMixin):
         content = ''
         summary = ''
         print(f'\n Path: {self.urlpath} \n')
-        if str(self.urlpath).strip() == 'sop_/' :
+        if str(self.urlpath).strip() in  ['sop_/', 'sop/'] :
             title_new, content = get_ai_content(mode = 'sop', f_name = f_name, instructions = instructions)
+            
+            summary = '' #get_ai_summary(content)
+        elif str(self.urlpath).strip() in ['faq__/', 'faq/'] :
+            title_new, content = get_ai_content(mode = 'faq', f_name = f_name, instructions = instructions)
             
             summary = '' #get_ai_summary(content)
         else:
@@ -721,6 +762,113 @@ class SopView(ArticleMixin, TemplateView):
         for elem in list_article:
             new_url = self.auto_create_article(request, self.article, urlpath, elem.title, elem.title, elem.content, summary)
             
+#----------------------------------------------------------------------------
+class FaqView(ArticleMixin, TemplateView):
+
+    template_name = "wiki/view.html"
+
+    @method_decorator(get_article(can_read=True))
+    def dispatch(self, request, article, *args, **kwargs):
+        #print(my_tree_to_json())
+        try:
+            
+            self.root = wiki_models.URLPath.get_by_path("")
+            self.three = wiki_models.URLPath.get_ordered_children(self.root)
+            for three_elem in self.three:
+                #print(f'Three: {three_elem}')
+                if (str(three_elem).strip() in ['faq/', 'faq_/']):
+                    #messages.success( self.request,  _("The FAQ section already exist."))
+                    self.current_path = three_elem
+                    
+                    return self.get_success_url()
+             
+            try:
+                self.newpath = wiki_models.URLPath._create_urlpath_from_request(
+                    self.request,
+                    article,
+                    self.root,
+                    'faq_',
+                    "FAQ",
+                    'All documents containing Frequently Asked Questions (FAQ)',
+                    '',
+                )
+                        
+                messages.success(
+                            self.request,
+                            _("The FAQ section was created.")
+                    
+                        )
+                self.current_path = self.newpath
+                return self.get_success_url()
+                    
+            # TODO: Handle individual exceptions better and give good feedback.
+            except Exception as e:
+                log.exception("The FAQ not created!")
+                if self.request.user.is_superuser:
+                    messages.error(
+                        self.request,
+                        _("There was an error creating FAQ section: %s") % str(e),
+                    )
+                else:
+                    messages.error(
+                        self.request, _("There was an error creating FAQ section.")
+                    )
+                return redirect("wiki:get", "")
+        except:
+            messages.error(
+                        self.request, _("Can't read three of wiki.")
+                    )
+            return redirect("wiki:get", "")
+    
+        return super().dispatch(request, article, *args, **kwargs)
+        
+    def get_success_url(self):
+        return redirect("wiki:get", self.current_path.path)
+
+    def get_context_data(self, **kwargs):
+        kwargs["selected_tab"] = "view"
+        return ArticleMixin.get_context_data(self, **kwargs)
+        
+        
+    def auto_create_article(self, request, article, urlpath, slug, title, content, summary):
+    
+        try:
+            
+            self.current_path = wiki_models.URLPath._create_urlpath_from_request(
+                request,
+                article,
+                urlpath,
+                slug,
+                title,
+                
+                content,
+                summary,
+            )
+            
+            print(f'\n Article: {self.article}  Urlpath: {self.urlpath}')
+        # TODO: Handle individual exceptions better and give good feedback.
+        except Exception as e:
+            log.exception("Exception creating article.")
+            if self.request.user.is_superuser:
+                messages.error(
+                    self.request,
+                    _("There was an error creating this article: %s") % str(e),
+                )
+            else:
+                messages.error(
+                    self.request, _("There was an error creating this article.")
+                )
+            return redirect("wiki:get", "")
+
+        return self.get_success_url()
+
+    def create_list_articles(self, request, urlpath, list_article):
+        
+        summary = ''
+        for elem in list_article:
+            new_url = self.auto_create_article(request, self.article, urlpath, elem.title, elem.title, elem.content, summary)
+#-----------------------------------------------------------------------------------
+            
 class AssistantView(ArticleMixin, TemplateView):
 
     @method_decorator(csrf_exempt)  # Отключите CSRF проверку (в реальной жизни лучше настроить CSRF)
@@ -786,3 +934,5 @@ class AssistantView(ArticleMixin, TemplateView):
         return JsonResponse(res_data, safe=False)
         #return JsonResponse({'text': processed_text })
         #return HttpResponse(content_text)
+        
+        

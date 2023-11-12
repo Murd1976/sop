@@ -66,7 +66,8 @@ class WorkerОpenAIChat():
   
   __embedding_new =  False
 
-  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  #def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-4-vision-preview'):
     #global question_history
     self.question_history = []
     self.model = mod
@@ -557,7 +558,8 @@ class WorkerОpenAIProposal():
   system_doc_web_prop = 'html_proposal_instruction.txt'
   
 
-  def __init__(self, system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  #def __init__(self, system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  def __init__(self, system_file = '', company_dir = None, mod = 'gpt-4-vision-preview'):
     self.model = mod
     self.debug_log = []
     self.persist_directory = self.sys_dir + 'proposal/embedding/' + company_dir

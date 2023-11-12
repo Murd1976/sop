@@ -42,7 +42,8 @@ class WorkerОpenAI_SOP():
   system_doc_web_prop = 'html_proposal_instruction.txt'
   __embedding_new =  False
 
-  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  #def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-3.5-turbo-0301'):
+  def __init__(self, em_framework = 'chroma', system_file = '', company_dir = None, mod = 'gpt-4-vision-preview'):
     self.model = mod
     self.em_framework = em_framework
     self.debug_log = []
@@ -518,7 +519,7 @@ class WorkerОpenAI_SOP():
     #texts = []
     
     prompt_template_sop = templ
-
+    
     PROMPT = PromptTemplate(template=prompt_template_sop, input_variables=["context", "user_rules"])
 
     llm = OpenAI(temperature=0)
@@ -552,6 +553,7 @@ class WorkerОpenAI_SOP():
             for chunk in text_splitter.split_text(document_txt):
                 count_token += self.num_tokens_from_string(str(chunk), "cl100k_base")
                 #print(chunk)
+                #print(instructions)
                 #print('\n ===========================================: ')
                 print(count_token)
                 buf_res = analyze_chunk(chunk, instructions)[0]["text"]
